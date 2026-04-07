@@ -1,66 +1,111 @@
 package database;
 
+import model.GameResult;
 import model.Player;
-import java.util.List;
+import java.sql.*;
 import java.util.*;
-import java.util.stream.Collectors;
-import model.StatsSummary;
-
-import database.MockDatabase.GameResult;
 
 public class GameDAO {
+    
     public static void saveGameResult(Player player, int timePlayed, String difficulty, int numHintsUsed) {
-        //We do not save for guest users
-        if (player.getId() != 0) {
-            GameResult result = new GameResult(
-                player.getId(),
-                player.getUsername(),
-                timePlayed,
-                difficulty,
-                numHintsUsed
-            );
-            MockDatabase.addGameResult(result);
+        if (player.getId() == 0) return; // Guest players don't save
+        
+        String sql = "INSERT INTO game_results (player_id, time_played, difficulty, hints_used) " +
+                     "VALUES (?, ?, ?, ?)";
+        
+        try (Connection conn = DatabaseConnection.getConnection();
+             PreparedStatement pstmt = conn.prepareStatement(sql)) {
+            
+            pstmt.setInt(1, player.getId());
+            pstmt.setInt(2, timePlayed);
+            pstmt.setString(3, difficulty);
+            pstmt.setInt(4, numHintsUsed);
+            pstmt.executeUpdate();
+            
+            // Update best score if applicable
+            updateBestScore(player.getId(), difficulty, timePlayed);
+            
+        } catch (SQLException e) {
+            e.printStackTrace();
         }
     }
-
-    //stream() to apply multiple conditions for filtering
-    //collect(Collectors.groupingBy()) => stores key (username) and value (timePlayed)
-    public static List<GameResult> getHighScores() {
-        return MockDatabase.getGameResults().stream()
-            .collect(Collectors.groupingBy(
-                GameResult::getUsername,
-                Collectors.minBy(Comparator.comparingInt(GameResult::getTimePlayed))
-            ))
-            .values().stream() //takes the collect and creates a new stream
-            // .filter(Optional::isPresent)
-            .map(Optional::get) //extracts the GameResult
-            .sorted(Comparator.comparingInt(GameResult::getTimePlayed)) //fastest go first
-            .limit(10)
-            .collect(Collectors.toList()); //convert to List
+    
+    private static void updateBestScore(int playerId, String difficulty, int timePlayed) {
+        String sql = "INSERT INTO best_scores (player_id, difficulty, best_time, date_achieved) " +
+                     "VALUES (?, ?, ?, CURRENT_TIMESTAMP) " +
+                     "ON CONFLICT(player_id, difficulty) DO UPDATE SET " +
+                     "best_time = CASE WHEN excluded.best_time < best_time THEN excluded.best_time ELSE best_time END, " +
+                     "date_achieved = CASE WHEN excluded.best_time < best_time THEN CURRENT_TIMESTAMP ELSE date_achieved END";
+        
+        try (Connection conn = DatabaseConnection.getConnection();
+             PreparedStatement pstmt = conn.prepareStatement(sql)) {
+            
+            pstmt.setInt(1, playerId);
+            pstmt.setString(2, difficulty);
+            pstmt.setInt(3, timePlayed);
+            pstmt.executeUpdate();
+            
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
     }
-
-    public static List<GameResult> getBestScoresByDifficulty(String difficulty) {
-        return MockDatabase.getGameResults().stream()
-            .filter(result -> result.getDifficulty().equals(difficulty))
-            .collect(Collectors.groupingBy(
-                GameResult::getUsername,
-                Collectors.minBy(Comparator.comparingInt(GameResult::getTimePlayed))
-        ))
-        .values().stream()
-        .map(Optional::get)
-        .sorted(Comparator.comparingInt(GameResult::getTimePlayed))
-        .collect(Collectors.toList());
-    }
-
+    
     public static List<GameResult> getPlayerGameResults(int playerId) {
-        return MockDatabase.getGameResults().stream()
-            .filter(result -> result.getPlayerId() == (playerId)) //since we cannot use equals with int
-            .sorted(Comparator.comparing(GameResult::getDate).reversed())
-            .collect(Collectors.toList());
+        List<GameResult> results = new ArrayList<>();
+        String sql = "SELECT * FROM game_results WHERE player_id = ? ORDER BY date DESC";
+        
+        try (Connection conn = DatabaseConnection.getConnection();
+             PreparedStatement pstmt = conn.prepareStatement(sql)) {
+            
+            pstmt.setInt(1, playerId);
+            ResultSet rs = pstmt.executeQuery();
+            
+            while (rs.next()) {
+                GameResult gr = new GameResult(
+                    rs.getInt("player_id"),
+                    "", // username will be filled separately
+                    rs.getInt("time_played"),
+                    rs.getString("difficulty"),
+                    rs.getInt("hints_used")
+                );
+                gr.setDate(rs.getTimestamp("date"));
+                results.add(gr);
+            }
+            
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return results;
     }
-
-    public static StatsSummary getPlayerStats(int playerId) {
-        List<GameResult> playResults = getPlayerGameResults(playerId);
-        return new StatsSummary(playResults);
+    
+    public static List<GameResult> getBestScoresByDifficulty(String difficulty) {
+        List<GameResult> results = new ArrayList<>();
+        String sql = "SELECT p.username, gr.* FROM game_results gr " +
+                     "JOIN players p ON gr.player_id = p.id " +
+                     "WHERE gr.difficulty = ? " +
+                     "ORDER BY gr.time_played ASC LIMIT 10";
+        
+        try (Connection conn = DatabaseConnection.getConnection();
+             PreparedStatement pstmt = conn.prepareStatement(sql)) {
+            
+            pstmt.setString(1, difficulty);
+            ResultSet rs = pstmt.executeQuery();
+            
+            while (rs.next()) {
+                GameResult gr = new GameResult(
+                    rs.getInt("player_id"),
+                    rs.getString("username"),
+                    rs.getInt("time_played"),
+                    rs.getString("difficulty"),
+                    rs.getInt("hints_used")
+                );
+                gr.setDate(rs.getTimestamp("date"));
+                results.add(gr);
+            }
+            
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return results;
     }
 }

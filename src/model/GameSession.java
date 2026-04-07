@@ -113,11 +113,13 @@ public class GameSession {
 
     // Getters
     public int getSessionId() { return sessionId; }
+    public void setSessionId(int sessionId) { this.sessionId = sessionId; }
     public Player getPlayer() { return player; }
     public Difficulty getDifficulty() { return difficulty; }
     public String getDifficultyName() { return difficulty.getName(); }
     public Grid getGrid() { return grid; }
     public void setGrid(Grid grid) { this.grid = grid; }
+    public void setTimer(int timer) { this.timer = timer; }
     public int getTimer() { return timer; }
     public int getHintsRemaining() { return hintsRemaining; }
     public int getHintsUsed() { return hintsUsed; }

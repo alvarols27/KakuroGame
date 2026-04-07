@@ -1,7 +1,6 @@
 package model;
 
 import java.util.*;
-import database.MockDatabase.GameResult;
 import java.util.stream.Collectors;
 
 public class StatsSummary {
@@ -39,10 +38,10 @@ public class StatsSummary {
         
         return gameResults.stream()
             .collect(Collectors.groupingBy(GameResult::getDifficulty, Collectors.counting()))
-            .entrySet().stream()
-            .max(Map.Entry.comparingByValue())
-            .map(Map.Entry::getKey)
-            .orElse("None");
+            .entrySet().stream() 
+                .max(Map.Entry.comparingByValue())//find the highest value
+                .map(Map.Entry::getKey) //get difficulty
+                .orElse("None");
     }
     
     public Date getLastPlayedDate() {

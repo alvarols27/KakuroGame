@@ -11,7 +11,7 @@ public interface DashboardUI {
                                   String mediumBest, String mediumDate,
                                   String hardBest, String hardDate);
     void updateGameHistoryDisplay(String[][] historyData);
-    void updateSavedGamesDisplay(String[][] savedGamesData);
+    void updateSavedGamesDisplay(Object[][] savedGamesData);
     void setBackAction(ActionListener listener);
     void setRefreshAction(ActionListener listener);
     void setNewGameAction(ActionListener listener);

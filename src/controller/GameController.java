@@ -15,7 +15,7 @@ import java.util.*;
 import javax.swing.Timer;
 
 public class GameController {
-    private GameUI gameUI;
+    private GameUI gameUI; //controller doesnt know how the interface works cause GameUI takes care of it
     private JTextField[][] textFields;
     private Grid grid;
     private Player player;
@@ -72,7 +72,7 @@ public class GameController {
     }
 
     private void initListeners() {
-        gameUI.setSaveAction(e -> saveAndExit());
+        gameUI.setSaveGameAction(e -> saveGame());
         gameUI.setHintAction(e -> provideHint());
         gameUI.setUndoAction(e -> handleUndo());
         gameUI.setRedoAction(e -> handleRedo());
@@ -355,7 +355,7 @@ public class GameController {
             gameUI.showMessage("No hints remaining!");
         }
     }
-
+    
     //FIX THIS
     private void showMathChallenge(int row, int col, int correctValue) {
         int num1 = (int)(Math.random() * correctValue);
@@ -463,11 +463,11 @@ public class GameController {
         
         if (secondsElapsed > 5) {
             String[] roasts = {
-                "Are you okay? 🫠",
-                "Did you take a nap? 💤",
-                "My grandma solves faster! 👵",
-                "Is this your first time? 🤔",
-                "You know the numbers are 1-9, right? 📝"
+                "Are you okay?",
+                "Did you take a nap? zZzZ",
+                "My grandma solves faster!",
+                "Is this your first time?",
+                "You know the numbers are 1-9, right?"
             };
             String roast = roasts[(int)(Math.random() * roasts.length)];
             message += "\n\n" + roast;
@@ -509,7 +509,7 @@ public class GameController {
             session.getHintsUsed()
         );
         
-        SavedGameDAO.deleteAllSavedGamesForPlayer(player.getId());
+        // SavedGameDAO.deleteAllSavedGamesForPlayer(player.getId());
         
         String message = String.format(
             "🎉 CONGRATULATIONS! 🎉\n\n" +
@@ -525,10 +525,10 @@ public class GameController {
         
         {
             String[] praises = {
-                "Amazing solve! 🌟",
-                "You're on fire! 🔥",
-                "Well done there! 🎯",
-                "Kakuro BOSS! 👑"
+                "Amazing solve!",
+                "You're on fire!",
+                "Well done there!",
+                "Kakuro BOSS!"
             };
             String praise = praises[(int)(Math.random() * praises.length)];
             message += "\n\n" + praise;
@@ -556,13 +556,13 @@ public class GameController {
 
     // ==================== SAVE & EXIT ====================
 
-    private void saveAndExit() {
+    private void saveGame() {
         timer.stop();
         session.save();
         SavedGameDAO.saveGameSession(session);
         gameUI.showMessage("Game saved! Time: " + secondsElapsed + "s");
         gameUI.close();
-        returnToLoginView();
+        goToDashboardView();
     }
 
     // ==================== NAVIGATION ====================
@@ -611,7 +611,14 @@ public class GameController {
     private void returnToLoginView() {
         SwingUtilities.invokeLater(() -> {
             LoginView loginView = new LoginView();
-            new AuthController(loginView, new database.FilePlayerRepository());
+            new AuthController(loginView);
+        });
+    }
+
+    private void goToDashboardView() {
+        SwingUtilities.invokeLater(() -> {
+            DashboardView dashboardView = new DashboardView();
+            new DashboardController(dashboardView, player);
         });
     }
 }

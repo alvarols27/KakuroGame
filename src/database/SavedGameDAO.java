@@ -3,144 +3,159 @@ package database;
 import model.*;
 import model.difficulty.*;
 import interfaces.Difficulty;
-import interfaces.SavedGameInfo;
 
+import com.google.gson.Gson;
+import java.sql.*;
 import java.util.*;
-import java.io.*;
 
-//this is mostly for SAVE/LOAD game
 public class SavedGameDAO {
-    private static final String SAVED_GAMES_FILE = "saved_games.dat";
-    private static List<SavedGameData> savedGames = new ArrayList<>();
+    private static Gson gson = new Gson();
     
-    static {
-        loadSavedGames();
-    }
-    
-    private static void loadSavedGames() {
-        File file = new File(SAVED_GAMES_FILE);
-        if (file.exists()) {
-            try (ObjectInputStream ois = new ObjectInputStream(new FileInputStream(SAVED_GAMES_FILE))) {
-                savedGames = (List<SavedGameData>) ois.readObject();
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
+    public static void saveGameSession(GameSession session) {
+        int gameSessionId = session.getSessionId();
+        
+        String sql;
+        if (gameSessionId > 0) {
+            //if gameSession exists
+            sql = "UPDATE saved_games SET difficulty = ?, timer = ?, grid_data = ?, " +
+              "hints_remaining = ?, hints_used = ?, start_date = ?, last_saved = CURRENT_TIMESTAMP " +
+              "WHERE id = ?";
+        } else {
+            // create another one
+            sql = "INSERT INTO saved_games (player_id, difficulty, timer, grid_data, " +
+              "hints_remaining, hints_used, start_date, last_saved) " +
+              "VALUES (?, ?, ?, ?, ?, ?, ?, CURRENT_TIMESTAMP)";
         }
-    }
-    
-    private static void saveSavedGames() {
-        try (ObjectOutputStream oos = new ObjectOutputStream(new FileOutputStream(SAVED_GAMES_FILE))) {
-            oos.writeObject(savedGames);
-        } catch (Exception e) {
+        
+        try (Connection conn = DatabaseConnection.getConnection();
+            PreparedStatement pstmt = conn.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
+            
+            //convert grid to JSON for storage
+            String gridJson = gson.toJson(session.getGrid());
+            
+            if (gameSessionId > 0) {
+                pstmt.setString(1, session.getDifficultyName());
+                pstmt.setInt(2, session.getTimer());
+                pstmt.setString(3, gridJson);
+                pstmt.setInt(4, session.getHintsRemaining());
+                pstmt.setInt(5, session.getHintsUsed());
+                pstmt.setTimestamp(6, new Timestamp(session.getStartDate().getTime()));
+                pstmt.setInt(7, gameSessionId); //where gameSessionId is...
+            } else {
+                //INSERT
+                pstmt.setInt(1, session.getPlayer().getId());
+                pstmt.setString(2, session.getDifficultyName());
+                pstmt.setInt(3, session.getTimer());
+                pstmt.setString(4, gridJson);
+                pstmt.setInt(5, session.getHintsRemaining());
+                pstmt.setInt(6, session.getHintsUsed());
+                pstmt.setTimestamp(7, new Timestamp(session.getStartDate().getTime()));
+            }
+            pstmt.executeUpdate();
+
+            //if new GameSession ID
+            if (gameSessionId <= 0) {
+                try (ResultSet generatedKeys = pstmt.getGeneratedKeys()) {
+                    if (generatedKeys.next()) {
+                        session.setSessionId(generatedKeys.getInt(1));
+                    }
+                }
+
+                catch (SQLException e) {
+                    e.printStackTrace();
+                }
+            }
+            
+        } catch (SQLException e) {
             e.printStackTrace();
         }
     }
     
-    public static void saveGameSession(GameSession session) {
-        // Delete existing session for this player if exists
-        savedGames.removeIf(sg -> sg.getPlayerId() == session.getPlayer().getId());
-        
-        SavedGameData data = new SavedGameData(
-            session.getPlayer().getId(),
-            session.getDifficultyName(),
-            session.getTimer(),
-            session.getGrid(),
-            session.getHintsRemaining(),
-            session.getHintsUsed(),
-            session.getStartDate(),
-            new Date()
-        );
-        savedGames.add(data);
-        saveSavedGames();
-    }
-    
     public static List<SavedGameInfo> getSavedGames(int playerId) {
         List<SavedGameInfo> result = new ArrayList<>();
-        int id = 1;
-        for (SavedGameData data : savedGames) {
-            if (data.getPlayerId() == playerId) {
+        String sql = "SELECT id, difficulty, timer, last_saved FROM saved_games WHERE player_id = ? ORDER BY last_saved DESC";
+        
+        try (Connection conn = DatabaseConnection.getConnection();
+             PreparedStatement pstmt = conn.prepareStatement(sql)) {
+            
+            pstmt.setInt(1, playerId);
+            ResultSet rs = pstmt.executeQuery();
+            
+            while (rs.next()) {
                 result.add(new SavedGameInfo(
-                    id++,
-                    data.getDifficulty(),
-                    data.getTimer(),
-                    data.getLastSavedDate()
+                    rs.getInt("id"),
+                    rs.getString("difficulty"),
+                    rs.getInt("timer"),
+                    rs.getTimestamp("last_saved")
+                    // getGridSizeForDifficulty(rs.getString("difficulty"))
                 ));
             }
+            
+        } catch (SQLException e) {
+            e.printStackTrace();
         }
         return result;
     }
     
     public static GameSession loadGameSession(int sessionId) {
-        // Find the session (simplified - in real implementation, use ID)
-        for (SavedGameData data : savedGames) {
-            if (data.getPlayerId() > 0) { // Simplified matching
-                Difficulty difficulty;
-                switch (data.getDifficulty()) {
-                    case "Medium":
-                        difficulty = new MediumDifficulty();
-                        break;
-                    case "Hard":
-                        difficulty = new HardDifficulty();
-                        break;
-                    default:
-                        difficulty = new EasyDifficulty();
-                }
+        String sql = "SELECT * FROM saved_games WHERE id = ?";
+        
+        try (Connection conn = DatabaseConnection.getConnection();
+             PreparedStatement pstmt = conn.prepareStatement(sql)) {
+            
+            pstmt.setInt(1, sessionId);
+            ResultSet rs = pstmt.executeQuery();
+            
+            if (rs.next()) {
+                Difficulty difficulty = createDifficulty(rs.getString("difficulty"));
+                Player tempPlayer = new Player(rs.getInt("player_id"), "", "");
                 
-                Player tempPlayer = new Player(data.getPlayerId(), "", "");
-                GameSession session = new GameSession(tempPlayer, difficulty);
-                session.setGrid(data.getGrid());
-                session.incrementTimer();
-                // Note: hints remaining/used would need proper restoration
+                // Use the constructor that takes all parameters
+                GameSession session = new GameSession(
+                    rs.getInt("id"),
+                    tempPlayer,
+                    difficulty,
+                    null, // grid will be restored separately
+                    rs.getInt("timer"),
+                    rs.getInt("hints_remaining"),
+                    rs.getInt("hints_used"),
+                    "SAVED",
+                    rs.getTimestamp("start_date")
+                );
+                
+                // Restore grid from JSON
+                String gridJson = rs.getString("grid_data");
+                Grid grid = gson.fromJson(gridJson, Grid.class);
+                session.setGrid(grid);
+                
                 return session;
             }
+            
+        } catch (SQLException e) {
+            e.printStackTrace();
         }
         return null;
     }
     
     public static void deleteSavedGame(int sessionId) {
-        // Simplified - would use proper ID in real implementation
-        if (sessionId > 0 && sessionId <= savedGames.size()) {
-            savedGames.remove(sessionId - 1);
-            saveSavedGames();
+        String sql = "DELETE FROM saved_games WHERE id = ?";
+        
+        try (Connection conn = DatabaseConnection.getConnection();
+             PreparedStatement pstmt = conn.prepareStatement(sql)) {
+            
+            pstmt.setInt(1, sessionId);
+            pstmt.executeUpdate();
+            
+        } catch (SQLException e) {
+            e.printStackTrace();
         }
     }
     
-    public static void deleteAllSavedGamesForPlayer(int playerId) {
-        savedGames.removeIf(sg -> sg.getPlayerId() == playerId);
-        saveSavedGames();
-    }
-    
-    // Inner class for serialization
-    static class SavedGameData implements Serializable {
-        private static final long serialVersionUID = 1L;
-        private int playerId;
-        private String difficulty;
-        private int timer;
-        private Grid grid;
-        private int hintsRemaining;
-        private int hintsUsed;
-        private Date startDate;
-        private Date lastSavedDate;
-        
-        public SavedGameData(int playerId, String difficulty, int timer, Grid grid,
-                             int hintsRemaining, int hintsUsed, Date startDate, Date lastSavedDate) {
-            this.playerId = playerId;
-            this.difficulty = difficulty;
-            this.timer = timer;
-            this.grid = grid;
-            this.hintsRemaining = hintsRemaining;
-            this.hintsUsed = hintsUsed;
-            this.startDate = startDate;
-            this.lastSavedDate = lastSavedDate;
+    private static Difficulty createDifficulty(String diff) {
+        switch (diff) {
+            case "Medium": return new MediumDifficulty();
+            case "Hard": return new HardDifficulty();
+            default: return new EasyDifficulty();
         }
-        
-        public int getPlayerId() { return playerId; }
-        public String getDifficulty() { return difficulty; }
-        public int getTimer() { return timer; }
-        public Grid getGrid() { return grid; }
-        public int getHintsRemaining() { return hintsRemaining; }
-        public int getHintsUsed() { return hintsUsed; }
-        public Date getStartDate() { return startDate; }
-        public Date getLastSavedDate() { return lastSavedDate; }
     }
 }

@@ -3,6 +3,8 @@ package interfaces;
 import java.awt.event.ActionListener;
 import java.util.function.BiConsumer;
 
+//what methods views should have (decoupling controllers from views)
+
 public interface GameUI {
     void close();
     void updateTimer(String time);
@@ -28,7 +30,7 @@ public interface GameUI {
     void resetClueCellColors(int row, int col);
     
     //Button action setters
-    void setSaveAction(ActionListener listener);
+    void setSaveGameAction(ActionListener listener);
     void setHintAction(ActionListener listener);
     void setUndoAction(ActionListener listener);
     void setRedoAction(ActionListener listener);

@@ -34,7 +34,7 @@ public class DashboardView extends JFrame implements DashboardUI {
     private JButton loadGameButton;
     private JButton deleteGameButton;
     private JButton settingsButton;
-    
+
     private int selectedSavedGameId = -1;
     
     public DashboardView() {
@@ -59,7 +59,7 @@ public class DashboardView extends JFrame implements DashboardUI {
         JPanel footerPanel = createFooterPanel();
         add(footerPanel, BorderLayout.SOUTH);
         
-        setSize(700, 550);
+        setSize(700, 650);
         setLocationRelativeTo(null);
         setVisible(true);
     }
@@ -222,7 +222,7 @@ public class DashboardView extends JFrame implements DashboardUI {
     }
     
     private JScrollPane loadSavedGamesTab() {
-        String[] columns = {"ID", "Date", "Difficulty", "Time Elapsed (sec)", "Grid Size"};
+        String[] columns = {"ID", "Date", "Difficulty", "Time Elapsed (sec)"};
         savedGamesTableModel = new DefaultTableModel(columns, 0) {
             @Override
             public boolean isCellEditable(int row, int column) {
@@ -330,9 +330,9 @@ public class DashboardView extends JFrame implements DashboardUI {
     }
     
     @Override
-    public void updateSavedGamesDisplay(String[][] savedGamesData) {
+    public void updateSavedGamesDisplay(Object[][] savedGamesData) {
         savedGamesTableModel.setRowCount(0);
-        for (String[] row : savedGamesData) {
+        for (Object[] row : savedGamesData) {
             savedGamesTableModel.addRow(row);
         }
     }

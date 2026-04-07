@@ -1,21 +1,19 @@
 package controller;
 
 import interfaces.LoginUI;
-import interfaces.PlayerRepository;
 import interfaces.Difficulty;
 import model.Player;
 import model.difficulty.EasyDifficulty;
 import view.GameView;
 import view.RegisterView;
 import java.util.Optional;
+import database.PlayerDAO;
 
 public class AuthController {
     private LoginUI loginUI;
-    private PlayerRepository playerRepo;
 
-    public AuthController(LoginUI loginUI, PlayerRepository playerRepo) {
+    public AuthController(LoginUI loginUI) {
         this.loginUI = loginUI;
-        this.playerRepo = playerRepo;
         initListeners();
     }
 
@@ -38,23 +36,24 @@ public class AuthController {
     private void handleCreateAccount(RegisterView rv) {
         String user = rv.getUsername();
         String pass = rv.getPassword();
+        String confirmPass = rv.getConfirmPassword();
         
         if (user.isEmpty() || pass.isEmpty()) {
             rv.showError("Please enter both username and password.");
             return;
         }
         
-        if (!rv.passwordsMatch()) {
+        if (!pass.equals(confirmPass)) {
             rv.showError("Passwords do not match!");
             return;
         }
         
-        if (playerRepo.usernameExists(user)) {
+        if (PlayerDAO.usernameExists(user)) {
             rv.showError("Username already exists!");
             return;
         }
         
-        playerRepo.register(user, pass);
+        PlayerDAO.register(user, pass);
         rv.showSuccess("Account created successfully for " + user + "!");
         rv.dispose();
         loginUI.setVisible(true);
@@ -69,7 +68,7 @@ public class AuthController {
             return;
         }
         
-        Optional<Player> player = playerRepo.login(user, pass);
+        Optional<Player> player = PlayerDAO.login(user, pass);
         if (player.isPresent()) {
             startGame(player.get());
         } else {

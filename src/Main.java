@@ -1,7 +1,5 @@
 import interfaces.LoginUI;
-import interfaces.PlayerRepository;
 import view.LoginView;
-import database.FilePlayerRepository;
 import controller.AuthController;
 import javax.swing.*;
 
@@ -15,7 +13,6 @@ public class Main {
 
         //we start with loginView
         LoginUI loginUI = new LoginView();
-        PlayerRepository playerRepo = new FilePlayerRepository();
-        new AuthController(loginUI, playerRepo);
+        new AuthController(loginUI);
     }
 }

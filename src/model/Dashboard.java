@@ -1,7 +1,5 @@
 package model;
 
-// import database.MockDatabase;
-import database.MockDatabase.GameResult;
 import interfaces.Difficulty;
 import database.GameDAO;
 

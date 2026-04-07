@@ -1,10 +1,13 @@
 package view;
 
 import javax.swing.*;
+
+import interfaces.RegisterUI;
+
 import java.awt.*;
 import java.awt.event.ActionListener;
 
-public class RegisterView extends JFrame {
+public class RegisterView extends JFrame implements RegisterUI {
     private JTextField usernameField = new JTextField(20);
     private JPasswordField passwordField = new JPasswordField(20);
     private JPasswordField confirmPasswordField = new JPasswordField(20);
@@ -30,19 +33,34 @@ public class RegisterView extends JFrame {
         gbc.insets = new Insets(10, 10, 10, 10);
         gbc.fill = GridBagConstraints.HORIZONTAL;
 
-        gbc.gridx = 0; gbc.gridy = 0;
-        formPanel.add(new JLabel("Username:"), gbc);
+        gbc.gridx = 0;
+        gbc.gridx = 0;
+        JLabel userLabel = new JLabel("Username:");
+        userLabel.setFont(new Font("SansSerif", Font.BOLD, 14));
+        formPanel.add(userLabel, gbc);
+
         gbc.gridx = 1;
+        usernameField.setFont(new Font("SansSerif", Font.BOLD, 10));
         formPanel.add(usernameField, gbc);
 
-        gbc.gridx = 0; gbc.gridy = 1;
-        formPanel.add(new JLabel("Password:"), gbc);
+        gbc.gridx = 0;
+        gbc.gridy = 1;
+        JLabel passwordLabel = new JLabel("Password:");
+        passwordLabel.setFont(new Font("SansSerif", Font.BOLD, 14));
+        formPanel.add(passwordLabel, gbc);
+        
         gbc.gridx = 1;
+        passwordField.setFont(new Font("SansSerif", Font.PLAIN, 9));
         formPanel.add(passwordField, gbc);
 
-        gbc.gridx = 0; gbc.gridy = 1;
-        formPanel.add(new JLabel("Confirm Password:"), gbc);
+        gbc.gridx = 0; 
+        gbc.gridy = 2;
+        JLabel confirmPasswordLabel = new JLabel("Confirm password:");
+        confirmPasswordLabel.setFont(new Font("SansSerif", Font.BOLD, 14));
+        formPanel.add(confirmPasswordLabel, gbc);
+
         gbc.gridx = 1;
+        confirmPasswordField.setFont(new Font("SansSerif", Font.BOLD, 9));
         formPanel.add(confirmPasswordField, gbc);
 
         JPanel buttonPanel = new JPanel(new FlowLayout(FlowLayout.CENTER));
@@ -53,7 +71,7 @@ public class RegisterView extends JFrame {
         buttonPanel.add(registerButton);
         buttonPanel.add(backButton);
 
-        gbc.gridx = 0; gbc.gridy = 2; gbc.gridwidth = 2;
+        gbc.gridx = 0; gbc.gridy = 3; gbc.gridwidth = 3;
         formPanel.add(buttonPanel, gbc);
 
         add(formPanel, BorderLayout.CENTER);
@@ -66,40 +84,46 @@ public class RegisterView extends JFrame {
 
     private void styleButton(JButton button, Color color) {
         button.setBackground(color);
-        button.setForeground(Color.WHITE);
-        button.setFocusPainted(false);
-        button.setFont(new Font("SansSerif", Font.BOLD, 12));
-        button.setBorder(BorderFactory.createEmptyBorder(10, 20, 10, 20));
+        button.setBorderPainted(false);
+        button.setFont(new Font("SansSerif", Font.BOLD, 13));
     }
 
+    @Override
+    public void close() {
+        this.dispose();
+    }
+
+    @Override
     public String getUsername() { 
         return usernameField.getText(); 
     }
     
+    @Override
     public String getPassword() { 
         return new String(passwordField.getPassword()); 
     }
     
+    @Override
     public String getConfirmPassword() { 
         return new String(confirmPasswordField.getPassword()); 
     }
     
-    public boolean passwordsMatch() {
-        return getPassword().equals(getConfirmPassword());
-    }
-
+    @Override
     public void showError(String message) {
         JOptionPane.showMessageDialog(this, message, "Error", JOptionPane.ERROR_MESSAGE);
     }
     
+    @Override
     public void showSuccess(String message) {
         JOptionPane.showMessageDialog(this, message, "Success", JOptionPane.INFORMATION_MESSAGE);
     }
 
+    @Override
     public void setRegisterAction(ActionListener listener) { 
         registerButton.addActionListener(listener); 
     }
     
+    @Override
     public void setBackAction(ActionListener listener) { 
         backButton.addActionListener(listener); 
     }

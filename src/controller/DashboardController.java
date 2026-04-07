@@ -2,13 +2,11 @@ package controller;
 
 import interfaces.DashboardUI;
 import interfaces.Difficulty;
-import interfaces.SavedGameInfo;
 import model.*;
 import model.difficulty.*;
 import view.GameView;
 import view.LoginView;
 import view.SettingsView;
-// import database.GameDAO;
 import database.SavedGameDAO;
 
 import java.awt.BorderLayout;
@@ -36,7 +34,7 @@ public class DashboardController {
         initListeners();
         refreshDisplay();
     }
-    
+
     private void initListeners() {
         dashboardUI.setBackAction(e -> goBack());
         dashboardUI.setRefreshAction(e -> refreshDisplay());
@@ -48,6 +46,8 @@ public class DashboardController {
 
     private void refreshDisplay(){
         dashboard.refresh();
+        // findAllDatabaseFiles();
+        // searchForDbFiles(null, 0);
 
         //update stats
         StatsSummary stats = dashboard.getStatsSummary();
@@ -85,10 +85,10 @@ public class DashboardController {
         dashboardUI.updateBestScoresDisplay(easyBest, easyDate, mediumBest, mediumDate, hardBest, hardDate);
 
         //update game history
-        List<database.MockDatabase.GameResult> allGames = dashboard.requestPersonalStats();
+        List<GameResult> allGames = dashboard.requestPersonalStats();
         String[][] historyData = new String[allGames.size()][4]; //rows(number of games) || columns(4 infos: date, difficulty, timeplayed, n of hints used)
         for (int i = 0; i < allGames.size(); i++) {
-            database.MockDatabase.GameResult gr = allGames.get(i);
+            GameResult gr = allGames.get(i);
             historyData[i][0] = dateFormat.format(gr.getDate());
             historyData[i][1] = gr.getDifficulty();
             historyData[i][2] = String.valueOf(gr.getTimePlayed());
@@ -98,13 +98,14 @@ public class DashboardController {
 
         //update saved games
         List<SavedGameInfo> savedGames = SavedGameDAO.getSavedGames(player.getId());
-        String[][] savedData = new String[savedGames.size()][5];
+
+        Object[][] savedData = new Object[savedGames.size()][5];
         for (int i = 0; i < savedGames.size(); i++) {
             SavedGameInfo sg = savedGames.get(i);
-            savedData[i][0] = String.valueOf(sg.getSessionId());
-            savedData[i][1] = dateFormat.format(sg.getLastSavedDate());
+            savedData[i][0] = sg.getSessionId();
+            savedData[i][1] = sg.getLastSavedDate();
             savedData[i][2] = sg.getDifficulty();
-            savedData[i][3] = String.valueOf(sg.getTimer());
+            savedData[i][3] = sg.getTimer();
         }
         dashboardUI.updateSavedGamesDisplay(savedData);
     }
@@ -201,7 +202,7 @@ public class DashboardController {
         dashboardUI.close();
         javax.swing.SwingUtilities.invokeLater(() -> {
             LoginView loginView = new LoginView();
-            new AuthController(loginView, new database.FilePlayerRepository());
+            new AuthController(loginView);
         });
     }
 

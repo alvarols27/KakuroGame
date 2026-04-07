@@ -13,13 +13,13 @@ public class GameView extends JFrame implements GameUI {
     private JPanel gridPanel;
     private JLabel timerLabel;
     private JLabel hintsLabel;
-    private JButton saveButton;
     private JButton hintButton;
     private JButton undoButton;
     private JButton redoButton;
     private JButton noteModeButton;
     private JButton settingsButton;
     private JButton dashboardButton;
+    private JButton saveGameButton;
 
     //color constants
     private static final Color CLUE_NORMAL = new Color(208, 215, 221);
@@ -49,7 +49,7 @@ public class GameView extends JFrame implements GameUI {
         JPanel bottomPanel = createBottomPanel();
         add(bottomPanel, BorderLayout.SOUTH);
 
-        setSize(600, 650);
+        setSize(700, 650);
         setLocationRelativeTo(null);
         setVisible(true);
     }
@@ -264,7 +264,7 @@ public class GameView extends JFrame implements GameUI {
         noteModeButton = new JButton("Note Mode");
         settingsButton = new JButton("Settings");
         dashboardButton = new JButton("Dashboard");
-        saveButton = new JButton("Save & Exit");
+        saveGameButton = new JButton("Save");
 
         // styleButton(validateButton, new Color(46, 204, 113));
         styleButton(hintButton, new Color(241, 196, 15));
@@ -273,7 +273,7 @@ public class GameView extends JFrame implements GameUI {
         styleButton(noteModeButton, new Color(230, 126, 34));
         styleButton(settingsButton, new Color(52, 152, 219));
         styleButton(dashboardButton, new Color(46, 204, 113));
-        styleButton(saveButton, new Color(52, 152, 219));
+        styleButton(saveGameButton, new Color(52, 152, 219));
 
         // bottomPanel.add(validateButton);
         bottomPanel.add(hintButton);
@@ -282,7 +282,7 @@ public class GameView extends JFrame implements GameUI {
         bottomPanel.add(noteModeButton);
         bottomPanel.add(settingsButton);
         bottomPanel.add(dashboardButton);
-        bottomPanel.add(saveButton);
+        bottomPanel.add(saveGameButton);
         add(bottomPanel, BorderLayout.SOUTH);
 
         return bottomPanel;
@@ -438,7 +438,7 @@ public class GameView extends JFrame implements GameUI {
 
     @Override
     public void setSubmitEnabled(boolean enabled) {
-        saveButton.setEnabled(enabled);
+        saveGameButton.setEnabled(enabled);
     }
 
     @Override
@@ -461,11 +461,6 @@ public class GameView extends JFrame implements GameUI {
 
     @Override
     public void openDashboard() {
-    }
-
-    @Override
-    public void setSaveAction(ActionListener listener) {
-        saveButton.addActionListener(listener);
     }
 
     @Override
@@ -496,6 +491,11 @@ public class GameView extends JFrame implements GameUI {
     @Override
     public void setDashboardAction(ActionListener listener) {
         dashboardButton.addActionListener(listener);
+    }
+
+    @Override
+    public void setSaveGameAction(ActionListener listener) {
+        saveGameButton.addActionListener(listener);
     }
 
     @Override
