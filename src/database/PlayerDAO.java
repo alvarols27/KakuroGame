@@ -1,0 +1,22 @@
+package database;
+
+import model.Player;
+import java.util.Optional;
+
+public class PlayerDAO {
+    public static Optional<Player> login(String username, String password) {
+        return MockDatabase.getPlayers().stream()
+                .filter(p -> p.getUsername().equals(username) && p.getPassword().equals(password))
+                .findFirst();
+    }
+
+    public static void register(String username, String password) {
+        int nextId = MockDatabase.getPlayers().size() + 1;
+        MockDatabase.addPlayer(new Player(nextId, username, password));
+    }
+
+    public static boolean usernameExists(String username) {
+        return MockDatabase.getPlayers().stream()
+            .anyMatch(p -> p.getUsername().equals(username));
+    }
+}
