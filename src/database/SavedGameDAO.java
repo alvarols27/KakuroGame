@@ -107,7 +107,7 @@ public class SavedGameDAO {
             ResultSet rs = pstmt.executeQuery();
             
             if (rs.next()) {
-                Difficulty difficulty = createDifficulty(rs.getString("difficulty"));
+                Difficulty difficulty = getDifficultyByName(rs.getString("difficulty"));
                 Player tempPlayer = new Player(rs.getInt("player_id"), "", "");
                 
                 // Use the constructor that takes all parameters
@@ -151,10 +151,12 @@ public class SavedGameDAO {
         }
     }
     
-    private static Difficulty createDifficulty(String diff) {
-        switch (diff) {
-            case "Hard": return new HardDifficulty();
-            default: return new EasyDifficulty();
-        }
+    private static Difficulty getDifficultyByName(String name) {
+        return switch (name) {
+            case "Easy" -> new EasyDifficulty();
+            case "Medium" -> new MediumDifficulty();
+            case "Hard" -> new HardDifficulty();
+            default -> new EasyDifficulty();
+        };
     }
 }

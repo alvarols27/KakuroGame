@@ -8,6 +8,7 @@ public interface DashboardUI {
     void updateStatsDisplay(String totalGames, String avgTime, String totalHints, 
                             String favoriteDiff, String lastPlayed);
     void updateBestScoresDisplay(String easyBest, String easyDate,
+                                  String mediumBest, String mediumDate,
                                   String hardBest, String hardDate);
     void updateGameHistoryDisplay(String[][] historyData);
     void updateSavedGamesDisplay(Object[][] savedGamesData);

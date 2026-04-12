@@ -61,24 +61,28 @@ public class DashboardController {
 
         //update best scores
         List<BestScore> bestScores = dashboard.getBestScores();
-        String easyBest = "--", easyDate = "--";
-        String mediumBest = "N/A", mediumDate = "N/A"; // Marked removed
-        String hardBest = "--", hardDate = "--";
+        String easyBestTime = "--", easyBestDate = "--";
+        String mediumBestTime = "--", mediumBestDate = "--";
+        String hardBestTime = "--", hardBestDate = "--";
 
         for (BestScore bs : bestScores) {
-            switch (bs.getDifficulty()) {
-                case "Easy":
-                    easyBest = bs.getBestTime() + " sec";
-                    easyDate = dateFormat.format(bs.getDateAchieved());
-                    break;
-                case "Hard":
-                    hardBest = bs.getBestTime() + " sec";
-                    hardDate = dateFormat.format(bs.getDateAchieved());
-                    break;
+            String diff = bs.getDifficulty();
+            String time = bs.getBestTime() + "s";
+            String date = dateFormat.format(bs.getDateAchieved());
+
+            if ("Easy".equals(diff)) {
+                easyBestTime = time;
+                easyBestDate = date;
+            } else if ("Medium".equals(diff)) {
+                mediumBestTime = time;
+                mediumBestDate = date;
+            } else if ("Hard".equals(diff)) {
+                hardBestTime = time;
+                hardBestDate = date;
             }
         }
 
-        dashboardUI.updateBestScoresDisplay(easyBest, easyDate, hardBest, hardDate);
+        dashboardUI.updateBestScoresDisplay(easyBestTime, easyBestDate, mediumBestTime, mediumBestDate, hardBestTime, hardBestDate);
 
         //update game history
         List<GameResult> allGames = dashboard.requestPersonalStats();
@@ -114,6 +118,9 @@ public class DashboardController {
         switch (selected) {
             case "Hard":
                 difficulty = new HardDifficulty();
+                break;
+            case "Medium":
+                difficulty = new MediumDifficulty();
                 break;
             default:
                 difficulty = new EasyDifficulty();

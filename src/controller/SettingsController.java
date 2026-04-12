@@ -28,8 +28,7 @@ public class SettingsController {
     
     private void loadCurrentSettings() {
         String currentDiff = getSavedDifficulty(player.getUsername());
-        String[] difficulties = currentDiff.equals("Hard") ? new String[]{"Hard", "Easy"} : new String[]{"Easy", "Hard"};
-        settingsUI.setDifficultyOptions(difficulties);
+        settingsUI.setSelectedDifficulty(currentDiff);
     }
     
     private void saveSettings() {

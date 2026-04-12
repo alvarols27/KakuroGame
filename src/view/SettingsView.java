@@ -27,7 +27,7 @@ public class SettingsView extends JFrame implements SettingsUI {
         gbc.gridx = 0; gbc.gridy = 0;
         mainPanel.add(new JLabel("Default Difficulty:"), gbc);
         gbc.gridx = 1;
-        difficultyCombo = new JComboBox<>(new String[]{"Easy", "Hard"});
+        difficultyCombo = new JComboBox<>(new String[]{"Easy", "Medium", "Hard"});
         mainPanel.add(difficultyCombo, gbc);
         
         add(mainPanel, BorderLayout.CENTER);
@@ -49,7 +49,7 @@ public class SettingsView extends JFrame implements SettingsUI {
     @Override public void showError(String message) { JOptionPane.showMessageDialog(this, message, "Error", JOptionPane.ERROR_MESSAGE); }
     @Override public void showSuccess(String message) { JOptionPane.showMessageDialog(this, message, "Success", JOptionPane.INFORMATION_MESSAGE); }
     @Override public String getSelectedDifficulty() { return (String) difficultyCombo.getSelectedItem(); }
-    @Override public void setDifficultyOptions(String[] difficulties) { difficultyCombo.setModel(new DefaultComboBoxModel<>(difficulties)); }
+    @Override public void setSelectedDifficulty(String difficulty) { difficultyCombo.setSelectedItem(difficulty); }
     @Override public void setBackAction(ActionListener listener) { backButton.addActionListener(listener); }
     @Override public void setSaveAction(ActionListener listener) { saveButton.addActionListener(listener); }
 }

@@ -78,7 +78,7 @@ public class DatabaseConnection {
                 "id INTEGER PRIMARY KEY AUTOINCREMENT," +
                 "player_id INTEGER NOT NULL," +
                 "time_played INTEGER NOT NULL," +
-                "difficulty TEXT NOT NULL CHECK(difficulty IN ('Easy', 'Hard'))," +
+                "difficulty TEXT NOT NULL CHECK(difficulty IN ('Easy', 'Medium', 'Hard'))," +
                 "hints_used INTEGER DEFAULT 0," +                       
                 "date DATETIME DEFAULT CURRENT_TIMESTAMP," +
                 "FOREIGN KEY (player_id) REFERENCES players(id) ON DELETE CASCADE" +
@@ -87,7 +87,7 @@ public class DatabaseConnection {
             stmt.execute("CREATE TABLE IF NOT EXISTS best_scores (" +
                 "id INTEGER PRIMARY KEY AUTOINCREMENT," +
                 "player_id INTEGER NOT NULL," +
-                "difficulty TEXT NOT NULL CHECK(difficulty IN ('Easy', 'Hard'))," +
+                "difficulty TEXT NOT NULL CHECK(difficulty IN ('Easy', 'Medium', 'Hard'))," +
                 "best_time INTEGER NOT NULL," +
                 "date_achieved DATETIME DEFAULT CURRENT_TIMESTAMP," +
                 "FOREIGN KEY (player_id) REFERENCES players(id) ON DELETE CASCADE," +

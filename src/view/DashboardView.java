@@ -24,6 +24,8 @@ public class DashboardView extends JFrame implements DashboardUI {
     
     private JLabel easyBestLabel;
     private JLabel easyDateLabel;
+    private JLabel mediumBestLabel;
+    private JLabel mediumDateLabel;
     private JLabel hardBestLabel;
     private JLabel hardDateLabel;
     
@@ -176,8 +178,25 @@ public class DashboardView extends JFrame implements DashboardUI {
         easyDateLabel.setFont(new Font("SansSerif", Font.BOLD, 14));
         bestScoresPanel.add(easyDateLabel, gbc);
         
-        //hard row
+        //medium row
         gbc.gridy = 3;
+        gbc.gridx = 0;
+        bestScoresPanel.add(new JLabel("Medium") {{
+            setFont(new Font("SansSerif", Font.BOLD, 14));
+        }}, gbc);
+
+        gbc.gridx = 1;
+        mediumBestLabel = new JLabel("--");
+        mediumBestLabel.setFont(new Font("SansSerif", Font.BOLD, 14));
+        bestScoresPanel.add(mediumBestLabel, gbc);
+
+        gbc.gridx = 2;
+        mediumDateLabel = new JLabel("--");
+        mediumDateLabel.setFont(new Font("SansSerif", Font.BOLD, 14));
+        bestScoresPanel.add(mediumDateLabel, gbc);
+        
+        //hard row
+        gbc.gridy = 4;
         gbc.gridx = 0;
         bestScoresPanel.add(new JLabel("Hard") {{
             setFont(new Font("SansSerif", Font.BOLD, 14));
@@ -298,9 +317,11 @@ public class DashboardView extends JFrame implements DashboardUI {
     }
     
     @Override
-    public void updateBestScoresDisplay(String easyBest, String easyDate, String hardBest, String hardDate) {
+    public void updateBestScoresDisplay(String easyBest, String easyDate, String mediumBest, String mediumDate, String hardBest, String hardDate) {
         easyBestLabel.setText(easyBest);
         easyDateLabel.setText(easyDate);
+        mediumBestLabel.setText(mediumBest);
+        mediumDateLabel.setText(mediumDate);
         hardBestLabel.setText(hardBest);
         hardDateLabel.setText(hardDate);
     }
