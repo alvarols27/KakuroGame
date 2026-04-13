@@ -10,6 +10,8 @@ import view.LoginView;
 import database.GameDAO;
 import database.SavedGameDAO;
 import javax.swing.*;
+
+import java.awt.Font;
 import java.text.SimpleDateFormat;
 import java.util.*;
 import javax.swing.Timer;
@@ -64,7 +66,7 @@ public class GameController {
             gameUI.updateTimer(String.format("Time: %02d:%02d", mins, secs));
             
             //apply roasting message to game timer
-            if (secondsElapsed > 900 && secondsElapsed % 5 == 0) {
+            if (secondsElapsed % 180 == 0) {
                 popUpRoastingMessage();
             }
         });
@@ -90,102 +92,86 @@ public class GameController {
                 if (oldValue != newValue) {
                     session.recordMove(row, col, oldValue, newValue);
                     grid.setCellValue(row, col, newValue);
+                    
+                    validateRealTime();
+                    checkVictory();
                 }
-                
-                validateRealTime();
-                checkVictory();
             }
         });
     }
 
     // ==================== REAL-TIME VALIDATION ====================
-    private void validateRealTime() {
-        int size = grid.getSize();
-        
-        //clear colours when white cells are empty
-        // for (int i = 0; i < size; i++) {
-        //     for (int j = 0; j < size; j++) {
-        //         if (!grid.getCell(i, j).isReadOnly()) {
-        //             gameUI.clearHighlight(i, j);
-        //         }
-        //         if (grid.getCell(i, j).isReadOnly()) {
-        //             ((GameView) gameUI).setClueCellCorrect(i, j, false);
-        //             ((GameView) gameUI).setClueCellError(i, j, false);
-        //         }
-        //     }
-        // }
-
-        for (int i = 0; i < size; i++) {
-            for (int j = 0; j < size; j++) {
-                if (grid.getCell(i, j).isReadOnly()) {
-                    gameUI.resetClueCellColors(i, j);
-                }
+private void validateRealTime() {
+    int size = grid.getSize();
+    
+    // Reset clue cell colors
+    for (int i = 0; i < size; i++) {
+        for (int j = 0; j < size; j++) {
+            if (grid.getCell(i, j).isReadOnly()) {
+                gameUI.resetClueCellColors(i, j);
             }
-        }
-        
-        //to track duplicates
-        boolean[][] hasDuplicate = new boolean[size][size];
-        
-        //check for duplicates in row
-        for (int row = 0; row < size; row++) {
-            Map<Integer, List<Integer>> valuePositions = new HashMap<>();
-            for (int col = 0; col < size; col++) {
-                if (!grid.getCell(row, col).isReadOnly()) {
-                    int value = grid.getCellValue(row, col);
-                    if (value > 0) {
-                        valuePositions.computeIfAbsent(value, k -> new ArrayList<>()).add(col);
-                    }
-                }
-            }
-            for (Map.Entry<Integer, List<Integer>> entry : valuePositions.entrySet()) {
-                if (entry.getValue().size() > 1) {
-                    for (int col : entry.getValue()) {
-                        hasDuplicate[row][col] = true;
-                    }
-                }
-            }
-        }
-        
-        //check for duplicates in columns
-        for (int col = 0; col < size; col++) {
-            Map<Integer, List<Integer>> valuePositions = new HashMap<>();
-            for (int row = 0; row < size; row++) {
-                if (!grid.getCell(row, col).isReadOnly()) {
-                    int value = grid.getCellValue(row, col);
-                    if (value > 0) {
-                        valuePositions.computeIfAbsent(value, k -> new ArrayList<>()).add(row);
-                    }
-                }
-            }
-            for (Map.Entry<Integer, List<Integer>> entry : valuePositions.entrySet()) {
-                if (entry.getValue().size() > 1) {
-                    for (int row : entry.getValue()) {
-                        hasDuplicate[row][col] = true;
-                    }
-                }
-            }
-        }
-        
-        //validate clue cells
-        for (int i = 0; i < size; i++) {
-            for (int j = 0; j < size; j++) {
-                Cell cell = grid.getCell(i, j);
-                if (cell.isReadOnly()) {
-                    if (cell.getRowSumHint() > 0) {
-                        validateHorizontalRunWithReturn(i, j, cell.getRowSumHint());
-                    }
-                    if (cell.getColSumHint() > 0) {
-                        validateVerticalRunWithReturn(i, j, cell.getColSumHint());
-                    }
-                }
-            }
-        }
-        
-        // AUTO-SUBMIT when grid is completely correct
-        if (isGridCompletelyCorrect()) {
-            checkVictory();
         }
     }
+    
+    // Track duplicates
+    boolean[][] hasDuplicate = new boolean[size][size];
+    
+    // Check for duplicates in rows
+    for (int row = 0; row < size; row++) {
+        java.util.Map<Integer, java.util.List<Integer>> valuePositions = new java.util.HashMap<>();
+        for (int col = 0; col < size; col++) {
+            if (!grid.getCell(row, col).isReadOnly()) {
+                int value = grid.getCellValue(row, col);
+                if (value > 0) {
+                    valuePositions.computeIfAbsent(value, k -> new java.util.ArrayList<>()).add(col);
+                }
+            }
+        }
+        for (java.util.Map.Entry<Integer, java.util.List<Integer>> entry : valuePositions.entrySet()) {
+            if (entry.getValue().size() > 1) {
+                for (int col : entry.getValue()) {
+                    hasDuplicate[row][col] = true;
+                }
+            }
+        }
+    }
+    
+    // Check for duplicates in columns
+    for (int col = 0; col < size; col++) {
+        java.util.Map<Integer, java.util.List<Integer>> valuePositions = new java.util.HashMap<>();
+        for (int row = 0; row < size; row++) {
+            if (!grid.getCell(row, col).isReadOnly()) {
+                int value = grid.getCellValue(row, col);
+                if (value > 0) {
+                    valuePositions.computeIfAbsent(value, k -> new java.util.ArrayList<>()).add(row);
+                }
+            }
+        }
+        for (java.util.Map.Entry<Integer, java.util.List<Integer>> entry : valuePositions.entrySet()) {
+            if (entry.getValue().size() > 1) {
+                for (int row : entry.getValue()) {
+                    hasDuplicate[row][col] = true;
+                }
+            }
+        }
+    }
+    
+    // Validate clue cells
+    for (int i = 0; i < size; i++) {
+        for (int j = 0; j < size; j++) {
+            Cell cell = grid.getCell(i, j);
+            if (cell.isReadOnly()) {
+                if (cell.getRowSumHint() > 0) {
+                    validateHorizontalRunWithReturn(i, j, cell.getRowSumHint());
+                }
+                if (cell.getColSumHint() > 0) {
+                    validateVerticalRunWithReturn(i, j, cell.getColSumHint());
+                }
+            }
+        }
+    }
+    checkVictory();
+}
 
     private boolean validateHorizontalRunWithReturn(int clueRow, int clueCol, int targetSum) {
         int size = grid.getSize();
@@ -264,48 +250,6 @@ public class GameController {
         gameUI.resetClueCellColors(clueRow, clueCol);
         return false;
     }
-    
-    private boolean isGridCompletelyCorrect() {
-        int size = grid.getSize();
-        
-        for (int i = 0; i < size; i++) {
-            for (int j = 0; j < size; j++) {
-                Cell cell = grid.getCell(i, j);
-                
-                //check white cells have correct values
-                if (!cell.isReadOnly()) {
-                    if (cell.getValue() != grid.getSolutionValue(i, j)) {
-                        return false;
-                    }
-                }
-            }
-        }
-        
-        //to verify all clue cells are GREEN (sums correct)
-        for (int i = 0; i < size; i++) {
-            for (int j = 0; j < size; j++) {
-                Cell cell = grid.getCell(i, j);
-                if (cell.isReadOnly()) {
-
-                    if (cell.getRowSumHint() > 0) {
-                        int sum = calculateHorizontalSum(i, j);
-                        if (sum != cell.getRowSumHint()) {
-                            return false;
-                        }
-                    }
-
-                    if (cell.getColSumHint() > 0) {
-                        int sum = calculateVerticalSum(i, j);
-                        if (sum != cell.getColSumHint()) {
-                            return false;
-                        }
-                    }
-                }
-            }
-        }
-        
-        return true;
-    }
 
     private int calculateHorizontalSum(int clueRow, int clueCol) {
         int size = grid.getSize();
@@ -336,16 +280,19 @@ public class GameController {
                 for (int j = 0; j < size; j++) {
                     Cell cell = grid.getCell(i, j);
                     if (cell != null && !cell.isReadOnly() && cell.getValue() == 0) {
-                        int correctVal = grid.getSolutionValue(i, j);
+                        final int row = i;
+                        final int col = j;
+                        final int correctVal = grid.getSolutionValue(i, j);
                         
                         if (difficulty.requiresMathChallenge()) {
-                            showMathChallenge(i, j, correctVal);
+                            showMathChallenge(row, col, correctVal);
                         } else {
-                            grid.setCellValue(i, j, correctVal);
-                            textFields[i][j].setText(String.valueOf(correctVal));
+                            //only for easy and medium
+                            grid.setCellValue(row, col, correctVal);
+                            textFields[row][col].setText(String.valueOf(correctVal));
+                            validateRealTime();
+                            checkVictory();
                         }
-                        validateRealTime();
-                        checkVictory();
                         return;
                     }
                 }
@@ -356,34 +303,75 @@ public class GameController {
         }
     }
     
-    //FIX THIS
     private void showMathChallenge(int row, int col, int correctValue) {
-        int num1 = (int)(Math.random() * correctValue);
-        if (num1 == 0) num1 = 1;
-        if (num1 >= correctValue) num1 = correctValue - 1;
+        String question;
+        int expectedAnswer;
         
-        final int expectedAnswer = correctValue - num1;
-        String question = String.format("%d + ? = %d", num1, correctValue);
+        int problemType = (int)(Math.random() * 4);
+        
+    switch (problemType) {
+        case 0: 
+            int multiplier = (int)(Math.random() * 5) + 2;
+            int product = correctValue * multiplier;
+            question = String.format("%d ÷ %d = ?", product, multiplier);
+            expectedAnswer = correctValue;
+            break;
+            
+        case 1: 
+            int a = (int)(Math.random() * 5) + 2;
+            int b = (int)(Math.random() * 10) + 1; 
+            int c = (a * correctValue) - b;
+            question = String.format("(%d × ?) - %d = %d", a, b, c);
+            expectedAnswer = correctValue;
+            break;
+            
+        case 2: 
+            int percent = (int)(Math.random() * 4) + 2;
+            int part = (correctValue * percent) / 10;
+            question = String.format("%d%% of ? = %d", percent * 10, part);
+            expectedAnswer = correctValue;
+            break;
+            
+        default:
+            int num1 = (int)(Math.random() * (correctValue / 2)) + 1;
+            int num2 = (int)(Math.random() * (correctValue - num1)) + 1;
+            int num3 = correctValue - num1 - num2;
+            question = String.format("%d + %d + ? = %d", num1, num2, correctValue);
+            expectedAnswer = num3;
+            break;
+        }
         
         JPanel panel = new JPanel();
-        panel.add(new JLabel(question));
+        JLabel questionLabel = new JLabel(question);
+        questionLabel.setFont(new Font("SansSerif", Font.BOLD, 18));
+        panel.add(questionLabel);
+        
         JTextField answerField = new JTextField(5);
+        answerField.setFont(new Font("SansSerif", Font.PLAIN, 16));
+        answerField.setHorizontalAlignment(JTextField.CENTER);
         panel.add(answerField);
-        panel.add(new JLabel("You have 10 seconds!"));
+        
+        JLabel timerLabel = new JLabel("You have 10 seconds!");
+        timerLabel.setFont(new Font("SansSerif", Font.ITALIC, 14));
+        panel.add(timerLabel);
         
         JDialog dialog = new JDialog((JFrame) gameUI, "Math Challenge", true);
         dialog.setContentPane(panel);
         dialog.pack();
+        dialog.setSize(400, 100);
         dialog.setLocationRelativeTo(null);
         
         Timer countdown = new Timer(1000, null);
         final int[] timeLeft = {10};
+        final boolean[] answerSubmitted = {false};
+        final boolean[] timeExpired = {false};
         
         countdown.addActionListener(e -> {
             timeLeft[0]--;
             dialog.setTitle("Math Challenge - " + timeLeft[0] + " sec");
-            if (timeLeft[0] <= 0) {
+            if (timeLeft[0] <= 0 && !answerSubmitted[0]) {
                 countdown.stop();
+                timeExpired[0] = true;
                 dialog.dispose();
                 secondsElapsed += difficulty.getMathPenaltySeconds();
                 session.addTime(difficulty.getMathPenaltySeconds());
@@ -392,17 +380,23 @@ public class GameController {
         });
         
         JButton submitButton = new JButton("Submit");
+        submitButton.setFont(new Font("SansSerif", Font.BOLD, 14));
         submitButton.addActionListener(e -> {
+            if (answerSubmitted[0]) return;
+            
             countdown.stop();
+            answerSubmitted[0] = true;
+            
             try {
                 int answer = Integer.parseInt(answerField.getText());
-                if (answer == expectedAnswer) {
+                if (answer == expectedAnswer && !timeExpired[0]) {
                     grid.setCellValue(row, col, correctValue);
-                    gameUI.updateCell(row, col, correctValue);
                     textFields[row][col].setText(String.valueOf(correctValue));
                     gameUI.showMessage("Correct! Hint applied.");
                     validateRealTime();
                     checkVictory();
+                } else if (timeExpired[0]) {
+                    gameUI.showMessage("Time expired! No hint given.");
                 } else {
                     gameUI.showMessage("Wrong answer! No hint given.");
                 }
@@ -422,11 +416,15 @@ public class GameController {
     private void handleUndo() {
         MoveRecord move = session.undo();
         if (move != null) {
-            grid.setCellValue(move.getRow(), move.getColumn(), move.getValue());
-            gameUI.updateCell(move.getRow(), move.getColumn(), move.getValue());
+            grid.setCellValue(move.getRow(), move.getColumn(), move.getOldValue());
+            
             if (textFields[move.getRow()][move.getColumn()] != null) {
-                textFields[move.getRow()][move.getColumn()].setText(move.getValue() > 0 ? String.valueOf(move.getValue()) : "");
+                String displayValue = move.getOldValue() > 0 ? String.valueOf(move.getOldValue()) : "";
+                textFields[move.getRow()][move.getColumn()].setText(displayValue);
             }
+            
+            gameUI.updateCell(move.getRow(), move.getColumn(), move.getOldValue());
+            
             validateRealTime();
         } else {
             gameUI.showMessage("Nothing to undo!");
@@ -436,12 +434,18 @@ public class GameController {
     private void handleRedo() {
         MoveRecord move = session.redo();
         if (move != null) {
-            grid.setCellValue(move.getRow(), move.getColumn(), move.getValue());
-            gameUI.updateCell(move.getRow(), move.getColumn(), move.getValue());
+            grid.setCellValue(move.getRow(), move.getColumn(), move.getNewValue());
+            
             if (textFields[move.getRow()][move.getColumn()] != null) {
-                textFields[move.getRow()][move.getColumn()].setText(move.getValue() > 0 ? String.valueOf(move.getValue()) : "");
+                String displayValue = move.getNewValue() > 0 ? String.valueOf(move.getNewValue()) : "";
+                textFields[move.getRow()][move.getColumn()].setText(displayValue);
             }
+            
+            // Update the GameUI
+            gameUI.updateCell(move.getRow(), move.getColumn(), move.getNewValue());
+            
             validateRealTime();
+            
         } else {
             gameUI.showMessage("Nothing to redo!");
         }
@@ -461,7 +465,6 @@ public class GameController {
     private void popUpRoastingMessage() {
         String message = "ahem...";
         
-        if (secondsElapsed > 5) {
             String[] roasts = {
                 "Are you okay?",
                 "Did you take a nap? zZzZ",
@@ -471,7 +474,6 @@ public class GameController {
             };
             String roast = roasts[(int)(Math.random() * roasts.length)];
             message += "\n\n" + roast;
-        }
 
         gameUI.showMessage(message);
     }
@@ -482,13 +484,59 @@ public class GameController {
         if (victoryShown) return;
 
         int size = grid.getSize();
+        
+        for (int i = 0; i < size; i++) {
+            for (int j = 0; j < size; j++) {
+                if (!grid.getCell(i, j).isReadOnly()) {
+                    if (grid.getCellValue(i, j) == 0) {
+                        return; 
+                    }
+                }
+            }
+        }
+        
         for (int i = 0; i < size; i++) {
             for (int j = 0; j < size; j++) {
                 Cell cell = grid.getCell(i, j);
-                if (cell != null && !cell.isReadOnly()) {
-                    if (cell.getValue() != grid.getSolutionValue(i, j)) {
+                if (cell.isReadOnly()) {
+                    if (cell.getRowSumHint() > 0) {
+                        int sum = calculateHorizontalSum(i, j);
+                        if (sum != cell.getRowSumHint()) {
+                            return; 
+                        }
+                    }
+                    if (cell.getColSumHint() > 0) {
+                        int sum = calculateVerticalSum(i, j);
+                        if (sum != cell.getColSumHint()) {
+                            return; 
+                        }
+                    }
+                }
+            }
+        }
+        
+        for (int row = 0; row < size; row++) {
+            Set<Integer> seen = new HashSet<>();
+            for (int col = 0; col < size; col++) {
+                if (!grid.getCell(row, col).isReadOnly()) {
+                    int value = grid.getCellValue(row, col);
+                    if (seen.contains(value)) {
+                        return; // Duplicate found
+                    }
+                    seen.add(value);
+                }
+            }
+        }
+        
+        for (int col = 0; col < size; col++) {
+            Set<Integer> seen = new HashSet<>();
+            for (int row = 0; row < size; row++) {
+                if (!grid.getCell(row, col).isReadOnly()) {
+                    int value = grid.getCellValue(row, col);
+                    if (seen.contains(value)) {
                         return;
                     }
+                    seen.add(value);
                 }
             }
         }
@@ -508,9 +556,7 @@ public class GameController {
             difficulty.getName(),
             session.getHintsUsed()
         );
-        
-        // SavedGameDAO.deleteAllSavedGamesForPlayer(player.getId());
-        
+                
         String message = String.format(
             "🎉 CONGRATULATIONS! 🎉\n\n" +
             "You solved the puzzle in %d seconds!\n" +

@@ -50,7 +50,5 @@ public class BestScore {
     public void updateBestScore(int time, Date date) {
         this.bestTime = time;
         this.dateAchieved = date;
-
-        //also would save to the db
     }
 }

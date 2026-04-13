@@ -1,6 +1,7 @@
 import interfaces.LoginUI;
 import view.LoginView;
 import controller.AuthController;
+import controller.ThemeManager;
 import javax.swing.*;
 
 public class Main {
@@ -11,8 +12,11 @@ public class Main {
             e.printStackTrace();
         }
 
-        //we start with loginView
-        LoginUI loginUI = new LoginView();
-        new AuthController(loginUI);
+        ThemeManager.applyTheme();
+
+        SwingUtilities.invokeLater(() -> {
+            LoginUI loginUI = new LoginView();
+            new AuthController(loginUI);
+        });
     }
 }

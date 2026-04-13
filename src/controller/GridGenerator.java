@@ -2,8 +2,6 @@ package controller;
 
 import model.Grid;
 import java.util.Random;
-// import java.util.ArrayList;
-// import java.util.List;
 import interfaces.Difficulty;
 
 public class GridGenerator {
@@ -18,7 +16,7 @@ public class GridGenerator {
     private static Grid generateStructuredGrid(int size, boolean easyMode) {
         Grid grid = new Grid(size);
         
-        //here the clue cells are set to read
+        // Set all cells as read-only initially (clue cells)
         for (int i = 0; i < size; i++) {
             for (int j = 0; j < size; j++) {
                 grid.getCell(i, j).setReadOnly(true);
@@ -27,9 +25,9 @@ public class GridGenerator {
 
         if (size == 5) {
             createRandomEasyPattern(grid);
-        } else if (size == 8) {
+        } else if (size == 7) {
             createRandomMediumPattern(grid);
-        } else if (size == 11) {
+        } else if (size == 9) {
             createRandomHardPattern(grid);
         }
 
@@ -39,7 +37,7 @@ public class GridGenerator {
 
         calculateClues(grid, size);
 
-        //to fill some cells for Easy mode
+        // Pre-fill some cells for Easy mode
         if (easyMode && size == 5) {
             prefillEasyMode(grid, size);
         }
@@ -47,20 +45,14 @@ public class GridGenerator {
         return grid;
     }
 
-    //EASY MODE
+    // ==================== EASY MODE (5x5) ====================
     private static void createRandomEasyPattern(Grid grid) {
         int patternType = random.nextInt(3);
         
         int[][] pattern;
         switch (patternType) {
-            case 0:
-                pattern = EASY_PATTERN_1;
-                break;
-            case 1:
-                pattern = EASY_PATTERN_2;
-                break;
             default:
-                pattern = EASY_PATTERN_3;
+                pattern = EASY_PATTERN_1;
         }
         
         for (int i = 0; i < 5; i++) {
@@ -72,148 +64,67 @@ public class GridGenerator {
 
     private static final int[][] EASY_PATTERN_1 = {
         {1, 1, 1, 1, 1},
-        {1, 0, 0, 0, 1},
-        {1, 0, 0, 0, 0},
-        {1, 0, 0, 0, 0},
-        {1, 1, 0, 0, 0}
-    };
-
-    private static final int[][] EASY_PATTERN_2 = {
-        {1, 1, 1, 1, 1},
-        {1, 0, 0, 0, 0},
-        {1, 0, 0, 0, 0},
-        {1, 0, 0, 0, 1},
-        {1, 1, 1, 1, 1}
-    };
-
-    private static final int[][] EASY_PATTERN_3 = {
-        {1, 1, 1, 1, 1},
         {1, 0, 0, 1, 1},
         {1, 0, 0, 0, 1},
         {1, 0, 0, 0, 1},
         {1, 1, 1, 1, 1}
     };
 
-    //MEDIUM MODE
+    // ==================== MEDIUM MODE (7x7) ====================
     private static void createRandomMediumPattern(Grid grid) {
         int patternType = random.nextInt(3);
         
         int[][] pattern;
         switch (patternType) {
-            case 0:
-                pattern = MEDIUM_PATTERN_1;
-                break;
-            case 1:
-                pattern = MEDIUM_PATTERN_2;
-                break;
             default:
-                pattern = MEDIUM_PATTERN_3;
-                break;
+                pattern = MEDIUM_PATTERN_1;
         }
         
-        for (int i = 0; i < 8; i++) {
-            for (int j = 0; j < 8; j++) {
+        for (int i = 0; i < 7; i++) {
+            for (int j = 0; j < 7; j++) {
                 grid.getCell(i, j).setReadOnly(pattern[i][j] == 1);
             }
         }
     }
     
     private static final int[][] MEDIUM_PATTERN_1 = {
-        {1,1,1,1,1,1,1,1},
-        {1,0,0,0,1,0,0,1},
-        {1,0,0,0,1,0,0,1},
-        {1,0,0,0,0,0,0,1},
-        {1,1,0,0,0,0,1,1},
-        {1,0,0,1,0,0,0,1},
-        {1,0,0,0,0,0,0,1},
-        {1,1,1,1,1,1,1,1}
-    };
-
-    private static final int[][] MEDIUM_PATTERN_2 = {
-        {1,1,1,1,1,1,1,1},
-        {1,0,0,0,0,1,0,1},
-        {1,0,1,1,0,1,0,1},
-        {1,0,0,1,0,0,0,1},
-        {1,1,0,0,0,1,0,1},
-        {1,0,0,1,0,0,0,1},
-        {1,0,0,0,0,0,0,1},
-        {1,1,1,1,1,1,1,1}
+        {1, 1, 1, 1, 1, 1, 1},
+        {1, 0, 0, 0, 1, 0, 1},
+        {1, 0, 0, 0, 1, 0, 1},
+        {1, 0, 0, 0, 0, 0, 1},
+        {1, 1, 0, 0, 0, 1, 1},
+        {1, 0, 0, 0, 0, 0, 1},
+        {1, 1, 1, 1, 1, 1, 1}
     };
     
-    private static final int[][] MEDIUM_PATTERN_3 = {
-        {1,1,1,1,1,1,1,1},
-        {1,0,0,1,0,0,0,1},
-        {1,0,0,1,0,0,0,1},
-        {1,1,0,0,0,1,0,1},
-        {1,0,0,1,0,0,0,1},
-        {1,0,1,1,0,1,0,1},
-        {1,0,0,0,0,0,0,1},
-        {1,1,1,1,1,1,1,1}
-    };
-    
-    //HARD MODE
+    // ==================== HARD MODE (9x9) ====================
     private static void createRandomHardPattern(Grid grid) {
         int patternType = random.nextInt(3);
         
         int[][] pattern;
         switch (patternType) {
-            case 0:
+            default:
                 pattern = HARD_PATTERN_1;
                 break;
-            case 1:
-                pattern = HARD_PATTERN_2;
-                break;
-            default:
-                pattern = HARD_PATTERN_3;
         }
         
-        for (int i = 0; i < 11; i++) {
-            for (int j = 0; j < 11; j++) {
+        for (int i = 0; i < 9; i++) {
+            for (int j = 0; j < 9; j++) {
                 grid.getCell(i, j).setReadOnly(pattern[i][j] == 1);
             }
         }
     }
 
     private static final int[][] HARD_PATTERN_1 = {
-        {1,1,1,1,1,1,1,1,1,1,1},
-        {1,0,0,0,1,0,0,1,0,0,1},
-        {1,0,0,0,1,0,0,1,0,0,1},
-        {1,0,0,0,0,0,0,0,0,0,1},
-        {1,1,0,0,1,0,1,0,0,1,1},
-        {1,0,0,0,0,0,0,0,0,0,1},
-        {1,0,1,0,1,0,1,0,1,0,1},
-        {1,0,0,0,0,0,0,0,0,0,1},
-        {1,0,0,1,0,0,0,1,0,0,1},
-        {1,0,0,0,0,1,0,0,0,0,1},
-        {1,1,1,1,1,1,1,1,1,1,1}
-    };
-    
-    private static final int[][] HARD_PATTERN_2 = {
-        {1,1,1,1,1,1,1,1,1,1,1},
-        {1,0,0,0,0,1,0,0,0,0,1},
-        {1,0,1,1,0,1,0,1,1,0,1},
-        {1,0,0,1,0,0,0,1,0,0,1},
-        {1,1,0,0,0,1,0,0,0,1,1},
-        {1,0,0,1,0,0,0,1,0,0,1},
-        {1,0,1,1,0,1,0,1,1,0,1},
-        {1,0,0,0,0,0,0,0,0,0,1},
-        {1,0,1,0,1,0,1,0,1,0,1},
-        {1,0,0,0,0,0,0,0,0,0,1},
-        {1,1,1,1,1,1,1,1,1,1,1}
-    };
-    
-    private static final int[][] HARD_PATTERN_3 = {
-        {1,1,1,1,1,1,1,1,1,1,1},
-        {1,0,0,0,1,0,0,0,1,0,1},
-        {1,0,0,0,1,0,0,0,1,0,1},
-        {1,0,0,0,0,0,0,0,0,0,1},
-        {1,1,0,1,0,0,0,1,0,1,1},
-        {1,0,0,0,0,1,0,0,0,0,1},
-        {1,0,1,0,0,0,0,0,1,0,1},
-        {1,0,0,0,1,0,1,0,0,0,1},
-        {1,0,0,1,0,0,0,1,0,0,1},
-        {1,0,0,0,0,0,0,0,0,0,1},
-        {1,1,1,1,1,1,1,1,1,1,1}
+        {1, 1, 1, 1, 1, 1, 1, 1, 1},
+        {1, 0, 0, 0, 1, 0, 0, 1, 1},
+        {1, 0, 0, 0, 1, 0, 0, 1, 1},
+        {1, 0, 0, 0, 0, 0, 0, 0, 1},
+        {1, 1, 0, 0, 1, 0, 1, 0, 1},
+        {1, 0, 0, 0, 0, 0, 0, 0, 1},
+        {1, 0, 1, 0, 1, 0, 1, 0, 1},
+        {1, 0, 0, 0, 0, 0, 0, 0, 1},
+        {1, 1, 1, 1, 1, 1, 1, 1, 1}
     };
     
     // ==================== Helper Methods ====================

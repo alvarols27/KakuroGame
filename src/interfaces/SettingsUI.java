@@ -8,8 +8,8 @@ public interface SettingsUI {
     void showSuccess(String message);
     String getSelectedTheme();
     String getSelectedDifficulty();
-    void setThemeOptions(String[] themes);
-    void setDifficultyOptions(String[] difficulties);
+    void setSelectedTheme(String theme);
+    void setSelectedDifficulty(String difficulty);
     void setBackAction(ActionListener listener);
     void setSaveAction(ActionListener listener);
 }

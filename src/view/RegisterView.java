@@ -12,7 +12,7 @@ public class RegisterView extends JFrame implements RegisterUI {
     private JPasswordField passwordField = new JPasswordField(20);
     private JPasswordField confirmPasswordField = new JPasswordField(20);
     private JButton registerButton = new JButton("Create Account");
-    private JButton backButton = new JButton("Back to Login");
+    private JButton backButton = new JButton("Logout");
 
     public RegisterView() {
         setTitle("Kakuro Master - Register");

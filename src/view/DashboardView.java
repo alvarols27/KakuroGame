@@ -28,8 +28,7 @@ public class DashboardView extends JFrame implements DashboardUI {
     private JLabel hardBestLabel;
     private JLabel hardDateLabel;
     
-    private JButton backButton;
-    private JButton refreshButton;
+    private JButton logouButton;
     private JButton newGameButton;
     private JButton loadGameButton;
     private JButton deleteGameButton;
@@ -264,19 +263,16 @@ public class DashboardView extends JFrame implements DashboardUI {
     private JPanel createFooterPanel() {
         JPanel footerPanel = new JPanel(new FlowLayout());
         
-        backButton = new JButton("Back to Login");
-        refreshButton = new JButton("Refresh");
+        logouButton = new JButton("Logout");
         newGameButton = new JButton("New Game");
         settingsButton = new JButton("Settings");
         
-        styleButton(backButton, new Color(52, 152, 219));
-        styleButton(refreshButton, new Color(46, 204, 113));
+        styleButton(logouButton, new Color(255, 0, 0));
         styleButton(newGameButton, new Color(241, 196, 15));
         styleButton(settingsButton, new Color(155, 89, 182));
 
-        footerPanel.add(refreshButton);
         footerPanel.add(newGameButton);
-        footerPanel.add(backButton);
+        footerPanel.add(logouButton);
         footerPanel.add(settingsButton);
         
         return footerPanel;
@@ -339,12 +335,7 @@ public class DashboardView extends JFrame implements DashboardUI {
     
     @Override
     public void setBackAction(ActionListener listener) {
-        backButton.addActionListener(listener);
-    }
-    
-    @Override
-    public void setRefreshAction(ActionListener listener) {
-        refreshButton.addActionListener(listener);
+        logouButton.addActionListener(listener);
     }
     
     @Override

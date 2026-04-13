@@ -13,7 +13,6 @@ public interface DashboardUI {
     void updateGameHistoryDisplay(String[][] historyData);
     void updateSavedGamesDisplay(Object[][] savedGamesData);
     void setBackAction(ActionListener listener);
-    void setRefreshAction(ActionListener listener);
     void setNewGameAction(ActionListener listener);
     void setLoadSavedAction(ActionListener listener);
     void setDeleteSavedAction(ActionListener listener);

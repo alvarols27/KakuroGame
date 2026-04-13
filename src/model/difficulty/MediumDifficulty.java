@@ -4,10 +4,10 @@ import interfaces.Difficulty;
 
 public class MediumDifficulty implements Difficulty {
     @Override
-    public int getGridSize() { return 8; }
+    public int getGridSize() { return 7; }
 
     @Override
-    public int getMaxHints() { return 5; }
+    public int getMaxHints() { return 10; }
 
     @Override
     public boolean requiresMathChallenge() { return false; }

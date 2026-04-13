@@ -4,6 +4,8 @@ import interfaces.LoginUI;
 import interfaces.Difficulty;
 import model.Player;
 import model.difficulty.EasyDifficulty;
+import model.difficulty.MediumDifficulty;
+import model.difficulty.HardDifficulty;
 import view.GameView;
 import view.RegisterView;
 import java.util.Optional;
@@ -90,13 +92,26 @@ public class AuthController {
     }
 
     private void startGame(Player player) {    
-    Difficulty difficulty = new EasyDifficulty();
-    model.Grid grid = GridGenerator.generateRandomGrid(difficulty);
-    
-    javax.swing.SwingUtilities.invokeLater(() -> {
-        GameView gameView = new GameView(grid);
-        new GameController(gameView, grid, player, difficulty);
-        loginUI.close();
-    });
-}
+        String savedDifficulty = SettingsController.getSavedDifficulty(player.getUsername());
+        
+        Difficulty difficulty;
+        switch (savedDifficulty) {
+            case "Medium":
+                difficulty = new MediumDifficulty();
+                break;
+            case "Hard":
+                difficulty = new HardDifficulty();
+                break;
+            default:
+                difficulty = new EasyDifficulty();
+        }
+        
+        model.Grid grid = GridGenerator.generateRandomGrid(difficulty);
+        
+        javax.swing.SwingUtilities.invokeLater(() -> {
+            GameView gameView = new GameView(grid);
+            new GameController(gameView, grid, player, difficulty);
+            loginUI.close();
+        });
+    }
 }

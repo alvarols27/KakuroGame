@@ -4,10 +4,10 @@ import interfaces.Difficulty;
 
 public class HardDifficulty implements Difficulty {
     @Override
-    public int getGridSize() { return 11; }
+    public int getGridSize() { return 9; }
 
     @Override
-    public int getMaxHints() { return 3; }
+    public int getMaxHints() { return 10; }
 
     @Override
     public boolean requiresMathChallenge() { return true; }

@@ -36,8 +36,7 @@ public class DashboardController {
     }
 
     private void initListeners() {
-        dashboardUI.setBackAction(e -> goBack());
-        dashboardUI.setRefreshAction(e -> refreshDisplay());
+        dashboardUI.setBackAction(e -> logout());
         dashboardUI.setNewGameAction(e -> startNewGame());
         dashboardUI.setLoadSavedAction(e -> loadSavedGame());
         dashboardUI.setDeleteSavedAction(e -> deleteSavedGame());
@@ -46,9 +45,6 @@ public class DashboardController {
 
     private void refreshDisplay(){
         dashboard.refresh();
-        // findAllDatabaseFiles();
-        // searchForDbFiles(null, 0);
-
         //update stats
         StatsSummary stats = dashboard.getStatsSummary();
         dashboardUI.updateStatsDisplay(
@@ -111,13 +107,17 @@ public class DashboardController {
     }
 
     private void startNewGame() {
+        // get default diff from SettingsController
+        String savedDifficulty = SettingsController.getSavedDifficulty(player.getUsername());
+        
         String[] difficulties = { "Easy", "Medium", "Hard"};
-
+        
         JLabel messageLabel = new JLabel("Select Difficulty:");
         messageLabel.setFont(new Font("SansSerif", Font.BOLD, 18));
 
         JComboBox<String> comboBox = new JComboBox<>(difficulties);
         comboBox.setFont(new Font("SansSerif", Font.BOLD, 14));
+        comboBox.setSelectedItem(savedDifficulty); //this appears when selecting a new game difficulty
 
         JPanel panel = new JPanel(new BorderLayout(10,10));
         panel.add(messageLabel, BorderLayout.NORTH);
@@ -144,11 +144,9 @@ public class DashboardController {
                 case "Medium":
                     difficulty = new MediumDifficulty();
                     break;
-
                 case "Hard":
                     difficulty = new HardDifficulty();
                     break;
-                
                 default:
                     difficulty = new EasyDifficulty();
             }
@@ -176,7 +174,6 @@ public class DashboardController {
         }
     }
 
-    //NOT SURE ABOUT THIS ONE
     private void deleteSavedGame() {
         int sessionId = dashboardUI.getSelectedSavedGameId();
         if (sessionId <= 0) {
@@ -198,7 +195,7 @@ public class DashboardController {
         }
     }
 
-    private void goBack() {
+    private void logout() {
         dashboardUI.close();
         javax.swing.SwingUtilities.invokeLater(() -> {
             LoginView loginView = new LoginView();

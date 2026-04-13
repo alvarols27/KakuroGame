@@ -11,13 +11,11 @@ public class DatabaseConnection {
     
     public static Connection getConnection() {
         try {
-            // Ensure database directory exists
             File dbDir = new File("database");
             if (!dbDir.exists()) {
                 dbDir.mkdirs();
             }
             
-            // Only create a new connection if the existing one is closed or null
             if (connection == null || connection.isClosed()) {
                 Class.forName("org.sqlite.JDBC");
                 connection = DriverManager.getConnection(DATABASE_URL);

@@ -4,21 +4,21 @@ import interfaces.Difficulty;
 import java.util.*;
 
 public class GameSession {
-    private int sessionId; //ID session (load/save)
+    private int sessionId;
     private int timer;
     private Grid grid;
     private Player player;
     private Difficulty difficulty;
     private int hintsRemaining;
     private int hintsUsed;
-    private String status; //ACTIVE, COMPLETED, SAVED
+    private String status;
     private boolean noteMode;
     private Date startDate;
     private Date lastSavedDate;
 
-    private int currentPosition;
-    private Stack<MoveRecord> undoStack; //CHECK NAME
-    private Stack<MoveRecord> redoStack; //CHECK NAME
+    // Undo/Redo stacks
+    private Stack<MoveRecord> undoStack;
+    private Stack<MoveRecord> redoStack;
 
     public GameSession(Player player, Difficulty difficulty) {
         this.player = player;
@@ -30,12 +30,11 @@ public class GameSession {
         this.status = "ACTIVE";
         this.noteMode = false;
         this.startDate = new Date();
-        this.currentPosition = 0;
         this.undoStack = new Stack<>();
         this.redoStack = new Stack<>();
     }
 
-    //to load a game
+    // Constructor for loading saved game
     public GameSession(int sessionId, Player player, Difficulty difficulty, 
                        Grid grid, int timer, int hintsRemaining, int hintsUsed,
                        String status, Date startDate) {
@@ -52,7 +51,48 @@ public class GameSession {
         this.redoStack = new Stack<>();
     }
 
-    //game actions
+    public void recordMove(int row, int col, int oldValue, int newValue) {
+        //clear redo stack when a new move is made
+        redoStack.clear();
+        
+        //create and store the move
+        MoveRecord move = new MoveRecord(row, col, oldValue, newValue);
+        undoStack.push(move);
+    }
+
+    //undo the last move
+    public MoveRecord undo() {
+        if (!undoStack.isEmpty()) {
+            MoveRecord move = undoStack.pop();
+            redoStack.push(move);
+            return move;
+        }
+        return null;
+    }
+
+    // redo the last undone move
+    public MoveRecord redo() {
+        if (!redoStack.isEmpty()) {
+            MoveRecord move = redoStack.pop();
+            undoStack.push(move);
+            return move;
+        }
+        return null;
+    }
+    
+    public boolean canUndo() {
+        return !undoStack.isEmpty();
+    }
+    
+    public boolean canRedo() {
+        return !redoStack.isEmpty();
+    }
+    
+    public void clearMoves() {
+        undoStack.clear();
+        redoStack.clear();
+    }
+
     public void incrementTimer() {
         timer++;
     }
@@ -70,35 +110,6 @@ public class GameSession {
         return false;
     }
 
-    //WE COULD UPDATE THE CLASS DIAGRAM
-    public void recordMove(int row, int col, int oldValue, int newValue) {
-        redoStack.clear(); //just when new move is done
-
-        MoveRecord move = new MoveRecord(currentPosition++, oldValue, row, col);
-        undoStack.push(move);
-    }
-
-    public MoveRecord undo() {
-        if (!undoStack.isEmpty()){
-            // undoStack: [Move1, Move2]
-            // move = Move3  ← stored in variable
-            // redoStack: []
-            MoveRecord move = undoStack.pop(); //to remove the top last move (REMOVES AND RETURNS THE TOP ITEM)
-            redoStack.push(move); //puts that move into redo stack (ADDS ITEM TO THE TOP)
-            return move;
-        }
-        return null;
-    }
-
-    public MoveRecord redo() {
-        if (!redoStack.isEmpty()) {
-            MoveRecord move = redoStack.pop();
-            undoStack.push(move);
-            return move;
-        }
-        return null;
-    }
-
     public void toggleNoteMode() {
         this.noteMode = !noteMode;
     }
@@ -111,7 +122,7 @@ public class GameSession {
         this.status = "SAVED";
     }
 
-    // Getters
+    // Getters and Setters
     public int getSessionId() { return sessionId; }
     public void setSessionId(int sessionId) { this.sessionId = sessionId; }
     public Player getPlayer() { return player; }
