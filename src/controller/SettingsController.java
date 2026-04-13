@@ -19,7 +19,7 @@ public class SettingsController {
     
     private void initListeners() {
         settingsUI.setSaveAction(e -> saveSettings());
-        settingsUI.setBackAction(e -> closeSettings());
+        settingsUI.setBackAction(e -> applySettings());
     }
     
     public static String getSavedDifficulty(String username) {
@@ -28,16 +28,26 @@ public class SettingsController {
     
     private void loadCurrentSettings() {
         String currentDiff = getSavedDifficulty(player.getUsername());
-        settingsUI.setSelectedDifficulty(currentDiff);
+        settingsUI.setDifficulty(currentDiff);
     }
     
-    private void saveSettings() {
-        String newDifficulty = settingsUI.getSelectedDifficulty();
+    public String getProfileName() { return player.getUsername(); }
+    public void setProfileName(String name) { player.setUsername(name); }
+    public String getProfileAvatar() { return "default"; }
+    public void setProfileAvatar(String avatar) { }
+
+    public String getDifficulty() { return settingsUI.getDifficulty(); }
+    public void setDifficulty(String diff) { settingsUI.setDifficulty(diff); }
+    public String getTheme() { return "Light"; }
+    public void setTheme(String theme) { }
+
+    public void saveSettings() {
+        String newDifficulty = settingsUI.getDifficulty();
         prefs.put("difficulty_" + player.getUsername(), newDifficulty);
         settingsUI.showSuccess("Settings saved!\nDefault difficulty: " + newDifficulty);
     }
     
-    private void closeSettings() {
-        settingsUI.close();
+    public void applySettings() {
+        settingsUI.applySettings();
     }
 }

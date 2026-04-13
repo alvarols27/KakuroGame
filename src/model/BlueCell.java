@@ -1,12 +1,13 @@
 package model;
 
-public class BlueCell {
+public class BlueCell extends Cell {
     private int targetSum;
     private int row;
     private int column;
     private boolean isRed;
     
     public BlueCell(int row, int column) {
+        super(0, true);
         this.row = row;
         this.column = column;
         this.targetSum = 0;
@@ -36,4 +37,7 @@ public class BlueCell {
     public void setRedBackground(boolean isRed) {
         this.isRed = isRed;
     }
+
+    public boolean isHorizontal() { return false; /* To be implemented if needed */ }
+    public boolean isVertical() { return false; /* To be implemented if needed */ }
 }

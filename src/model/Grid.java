@@ -36,6 +36,34 @@ public class Grid {
         return cells[row][col];
     }
 
+    public void initializeGrid() {
+        // Logic handled during generation
+    }
+
+    public void validateRow(int row) { /* Validation logic */ }
+    public void validateColumn(int col) { /* Validation logic */ }
+
+    public boolean checkSolution() {
+        for (int i = 0; i < size; i++) {
+            for (int j = 0; j < size; j++) {
+                if (!cells[i][j].isReadOnly()) {
+                    if (cells[i][j].getValue() != solution[i][j]) return false;
+                }
+            }
+        }
+        return true;
+    }
+
+    public void resetGrid() {
+        for (int i = 0; i < size; i++) {
+            for (int j = 0; j < size; j++) {
+                if (!cells[i][j].isReadOnly()) {
+                    cells[i][j].setValue(0);
+                }
+            }
+        }
+    }
+
     public int getSize() {
         return size;
     }

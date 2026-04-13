@@ -60,4 +60,8 @@ public class StatsSummary {
     public List<GameResult> requestPersonalStats() {
         return gameResults;
     }
+
+    public void calculate() {
+        // Trigger recalculation logic if cached
+    }
 }

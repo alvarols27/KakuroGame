@@ -307,7 +307,7 @@ public class DashboardView extends JFrame implements DashboardUI {
     }
     
     @Override
-    public void updateStatsDisplay(String totalGames, String avgTime, String totalHints,
+    public void displayStats(String totalGames, String avgTime, String totalHints,
                                     String favoriteDiff, String lastPlayed) {
         totalGamesLabel.setText(totalGames);
         avgTimeLabel.setText(avgTime);
@@ -317,7 +317,7 @@ public class DashboardView extends JFrame implements DashboardUI {
     }
     
     @Override
-    public void updateBestScoresDisplay(String easyBest, String easyDate, String mediumBest, String mediumDate, String hardBest, String hardDate) {
+    public void displayHighScores(String easyBest, String easyDate, String mediumBest, String mediumDate, String hardBest, String hardDate) {
         easyBestLabel.setText(easyBest);
         easyDateLabel.setText(easyDate);
         mediumBestLabel.setText(mediumBest);

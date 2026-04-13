@@ -60,7 +60,7 @@ public class GameController {
     private void startTimer() {
         timer = new Timer(1000, e -> {
             secondsElapsed++;
-            session.incrementTimer();
+            session.updateTimer();
             int mins = secondsElapsed / 60;
             int secs = secondsElapsed % 60;
             gameUI.updateTimer(String.format("Time: %02d:%02d", mins, secs));
@@ -74,8 +74,8 @@ public class GameController {
     }
 
     private void initListeners() {
-        gameUI.setSaveGameAction(e -> saveGame());
-        gameUI.setHintAction(e -> provideHint());
+        gameUI.setSaveGameAction(e -> handleSave());
+        gameUI.setHintAction(e -> handleHint());
         gameUI.setUndoAction(e -> handleUndo());
         gameUI.setRedoAction(e -> handleRedo());
         gameUI.setNoteModeAction(e -> toggleNoteMode());
@@ -91,7 +91,7 @@ public class GameController {
                 int oldValue = grid.getCellValue(row, col);
 
                 if (oldValue != newValue) {
-                    session.recordMove(row, col, oldValue, newValue);
+                    session.enterValue(row, col, oldValue, newValue);
                     grid.setCellValue(row, col, newValue);
                 }
                 
@@ -330,8 +330,8 @@ public class GameController {
 
     // ==================== HINT SYSTEM ====================
 
-    private void provideHint() {
-        if (session.useHint()) {
+    private void handleHint() {
+        if (session.requestHint()) {
             gameUI.setHintsRemaining(session.getHintsRemaining());
             
             int size = grid.getSize();
@@ -397,7 +397,7 @@ public class GameController {
                 countdown.stop();
                 dialog.dispose();
                 secondsElapsed += difficulty.getMathPenaltySeconds();
-                session.addTime(difficulty.getMathPenaltySeconds());
+                session.increaseTimer(difficulty.getMathPenaltySeconds());
                 gameUI.showMessage("Time's up! +" + difficulty.getMathPenaltySeconds() + " seconds penalty!");
                 timer.start(); // Resume
             }
@@ -442,7 +442,7 @@ public class GameController {
     // ==================== UNDO/REDO ====================
 
     private void handleUndo() {
-        MoveRecord move = session.undo();
+        MoveRecord move = session.requestUndo();
         if (move != null) {
             grid.setCellValue(move.getRow(), move.getColumn(), move.getOldValue());
             gameUI.updateCell(move.getRow(), move.getColumn(), move.getOldValue());
@@ -456,12 +456,12 @@ public class GameController {
     }
 
     private void handleRedo() {
-        MoveRecord move = session.redo();
+        MoveRecord move = session.requestRedo();
         if (move != null) {
-            grid.setCellValue(move.getRow(), move.getColumn(), move.getNewValue());
-            gameUI.updateCell(move.getRow(), move.getColumn(), move.getNewValue());
+            grid.setCellValue(move.getRow(), move.getColumn(), move.getValue());
+            gameUI.updateCell(move.getRow(), move.getColumn(), move.getValue());
             if (textFields[move.getRow()][move.getColumn()] != null) {
-                textFields[move.getRow()][move.getColumn()].setText(move.getNewValue() > 0 ? String.valueOf(move.getNewValue()) : "");
+                textFields[move.getRow()][move.getColumn()].setText(move.getValue() > 0 ? String.valueOf(move.getValue()) : "");
             }
             validateRealTime();
         } else {
@@ -522,7 +522,7 @@ public class GameController {
 
         victoryShown = true;
         timer.stop();
-        session.complete();
+        session.endGame();
         
         GameDAO.saveGameResult(
             player,
@@ -578,13 +578,13 @@ public class GameController {
 
     // ==================== SAVE & EXIT ====================
 
-    private void saveGame() {
+    private void handleSave() {
         if (player.getId() == 0) {
             gameUI.showErrorMessage("You are a Guest! Register an account to save your progress.");
             return;
         }
         timer.stop();
-        session.save();
+        session.saveGame();
         SavedGameDAO.saveGameSession(session);
         gameUI.showMessage("Game saved! Time: " + secondsElapsed + "s");
         gameUI.close();

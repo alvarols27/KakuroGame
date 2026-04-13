@@ -26,14 +26,14 @@ public class AuthController {
     private void showRegisterScreen() {
         loginUI.close();
         RegisterView registerView = new RegisterView();
-        registerView.setRegisterAction(e -> handleCreateAccount(registerView));
+        registerView.setRegisterAction(e -> handleRegister(registerView));
         registerView.setBackAction(e -> {
             registerView.dispose();
             loginUI.setVisible(true);
         });
     }
 
-    private void handleCreateAccount(RegisterView rv) {
+    private void handleRegister(RegisterView rv) {
         String user = rv.getUsername();
         String pass = rv.getPassword();
         String confirmPass = rv.getConfirmPassword();

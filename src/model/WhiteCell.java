@@ -1,23 +1,26 @@
 package model;
 
-public class WhiteCell {
+public class WhiteCell extends Cell {
     private int currentValue;
     private int noteValue;
     private int row;
     private int column;
     
     public WhiteCell(int row, int column) {
+        super(0, false);
         this.row = row;
         this.column = column;
         this.currentValue = 0;
         this.noteValue = 0;
     }
     
-    public int getCurrentValue() {
+    @Override
+    public int getValue() {
         return currentValue;
     }
     
-    public void setCurrentValue(int value) {
+    @Override
+    public void setValue(int value) {
         this.currentValue = value;
     }
     
@@ -39,5 +42,14 @@ public class WhiteCell {
     
     public int getColumn() {
         return column;
+    }
+
+    public void clearValue() {
+        this.currentValue = 0;
+        this.noteValue = 0;
+    }
+
+    public boolean isValid() {
+        return currentValue >= 1 && currentValue <= 9;
     }
 }

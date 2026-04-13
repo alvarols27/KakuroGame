@@ -23,7 +23,7 @@ public class MoveRecord {
         return oldValue;
     }
     
-    public int getNewValue() {
+    public int getValue() {
         return newValue;
     }
     

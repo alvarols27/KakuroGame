@@ -38,7 +38,7 @@ public class DashboardController {
     private void initListeners() {
         dashboardUI.setBackAction(e -> goBack());
         dashboardUI.setRefreshAction(e -> refreshDisplay());
-        dashboardUI.setNewGameAction(e -> startNewGame());
+        dashboardUI.setNewGameAction(e -> handleStartGame());
         dashboardUI.setLoadSavedAction(e -> loadSavedGame());
         dashboardUI.setDeleteSavedAction(e -> deleteSavedGame());
         dashboardUI.setSettingsAction(e -> openSettings());
@@ -51,7 +51,7 @@ public class DashboardController {
 
         //update stats
         StatsSummary stats = dashboard.getStatsSummary();
-        dashboardUI.updateStatsDisplay(
+        dashboardUI.displayStats(
             String.valueOf(stats.getTotalGamesPlayed()),
             String.format("%d sec", (int) stats.getAverageTime()),
             String.valueOf(stats.getTotalHintsUsed()),
@@ -82,7 +82,7 @@ public class DashboardController {
             }
         }
 
-        dashboardUI.updateBestScoresDisplay(easyBestTime, easyBestDate, mediumBestTime, mediumBestDate, hardBestTime, hardBestDate);
+        dashboardUI.displayHighScores(easyBestTime, easyBestDate, mediumBestTime, mediumBestDate, hardBestTime, hardBestDate);
 
         //update game history
         List<GameResult> allGames = dashboard.requestPersonalStats();
@@ -110,7 +110,7 @@ public class DashboardController {
         dashboardUI.updateSavedGamesDisplay(savedData);
     }
 
-    private void startNewGame() {
+    private void handleStartGame() {
         String selected = SettingsController.getSavedDifficulty(player.getUsername());
         dashboardUI.close();
 

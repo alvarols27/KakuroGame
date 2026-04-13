@@ -45,11 +45,11 @@ public class SettingsView extends JFrame implements SettingsUI {
         setVisible(true);
     }
     
-    @Override public void close() { dispose(); }
+    @Override public void applySettings() { dispose(); }
     @Override public void showError(String message) { JOptionPane.showMessageDialog(this, message, "Error", JOptionPane.ERROR_MESSAGE); }
     @Override public void showSuccess(String message) { JOptionPane.showMessageDialog(this, message, "Success", JOptionPane.INFORMATION_MESSAGE); }
-    @Override public String getSelectedDifficulty() { return (String) difficultyCombo.getSelectedItem(); }
-    @Override public void setSelectedDifficulty(String difficulty) { difficultyCombo.setSelectedItem(difficulty); }
+    @Override public String getDifficulty() { return (String) difficultyCombo.getSelectedItem(); }
+    @Override public void setDifficulty(String difficulty) { difficultyCombo.setSelectedItem(difficulty); }
     @Override public void setBackAction(ActionListener listener) { backButton.addActionListener(listener); }
     @Override public void setSaveAction(ActionListener listener) { saveButton.addActionListener(listener); }
 }

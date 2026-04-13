@@ -53,15 +53,15 @@ public class GameSession {
     }
 
     //game actions
-    public void incrementTimer() {
+    public void updateTimer() {
         timer++;
     }
 
-    public void addTime(int seconds) {
+    public void increaseTimer(int seconds) {
         timer += seconds;
     }
 
-    public boolean useHint() {
+    public boolean requestHint() {
         if (hintsRemaining > 0) {
             hintsRemaining--;
             hintsUsed++;
@@ -71,26 +71,23 @@ public class GameSession {
     }
 
     //WE COULD UPDATE THE CLASS DIAGRAM
-    public void recordMove(int row, int col, int oldValue, int newValue) {
+    public void enterValue(int row, int col, int oldValue, int newValue) {
         redoStack.clear(); //just when new move is done
 
         MoveRecord move = new MoveRecord(currentPosition++, oldValue, newValue, row, col);
         undoStack.push(move);
     }
 
-    public MoveRecord undo() {
+    public MoveRecord requestUndo() {
         if (!undoStack.isEmpty()){
-            // undoStack: [Move1, Move2]
-            // move = Move3  ← stored in variable
-            // redoStack: []
-            MoveRecord move = undoStack.pop(); //to remove the top last move (REMOVES AND RETURNS THE TOP ITEM)
-            redoStack.push(move); //puts that move into redo stack (ADDS ITEM TO THE TOP)
+            MoveRecord move = undoStack.pop();
+            redoStack.push(move);
             return move;
         }
         return null;
     }
 
-    public MoveRecord redo() {
+    public MoveRecord requestRedo() {
         if (!redoStack.isEmpty()) {
             MoveRecord move = redoStack.pop();
             undoStack.push(move);
@@ -103,11 +100,11 @@ public class GameSession {
         this.noteMode = !noteMode;
     }
 
-    public void complete() {
+    public void endGame() {
         this.status = "COMPLETED";
     }
 
-    public void save() {
+    public void saveGame() {
         this.status = "SAVED";
     }
 

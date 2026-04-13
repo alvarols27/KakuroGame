@@ -11,15 +11,19 @@ public class Player implements java.io.Serializable {
         this.password = password;
     }
 
-    public int getId() {
-        return id;
-    }
+    private boolean guest = false;
 
-    public String getUsername() {
-        return username;
-    }
+    public void register() { /* Handled by AuthController */ }
+    public void login() { /* Handled by AuthController */ }
+    public void logout() { /* Handled by Controllers */ }
+    public void openDashboard() { /* Handled by AuthController */ }
+    public void openSettings() { /* Handled by DashboardController */ }
 
-    public String getPassword() {
-        return password;
-    }
+    public boolean isGuest() { return guest || id == 0; }
+    public void setGuest(boolean guest) { this.guest = guest; }
+
+    public int getId() { return id; }
+    public String getUsername() { return username; }
+    public void setUsername(String username) { this.username = username; }
+    public String getPassword() { return password; }
 }
